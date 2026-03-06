@@ -29,14 +29,18 @@ function getDB(): PDO {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
 
-        // 先不指定数据库，确保库存在后再切换
-        $pdoRoot = new PDO(
-            'mysql:host=' . DB_HOST . ';charset=' . DB_CHARSET,
-            DB_USER, DB_PASS, $options
-        );
-        $pdoRoot->exec(
-            'CREATE DATABASE IF NOT EXISTS `' . DB_NAME . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
-        );
+        // 尝试自动建库（若用户无 CREATE DATABASE 权限则跳过，假设库已存在）
+        try {
+            $pdoRoot = new PDO(
+                'mysql:host=' . DB_HOST . ';charset=' . DB_CHARSET,
+                DB_USER, DB_PASS, $options
+            );
+            $pdoRoot->exec(
+                'CREATE DATABASE IF NOT EXISTS `' . DB_NAME . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci'
+            );
+        } catch (PDOException $e) {
+            // 权限不足时忽略，直接尝试连接已有数据库
+        }
 
         $pdo = new PDO(
             'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET,
