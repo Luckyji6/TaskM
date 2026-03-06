@@ -1,0 +1,265 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (empty($_SESSION['user_id'])) {
+    header('Location: /TaskM/pages/login.php');
+    exit;
+}
+$username = htmlspecialchars($_SESSION['username']);
+?>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的一天 — TaskM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/TaskM/assets/css/app.css">
+</head>
+<body>
+
+<nav class="app-nav">
+    <div class="nav-wrapper container" style="max-width:800px">
+        <a href="/TaskM/pages/dashboard.php" class="brand-logo">TaskM</a>
+        <ul class="right hide-on-med-and-down">
+            <li><a href="/TaskM/pages/dashboard.php"><i class="material-icons left">dashboard</i>主页</a></li>
+            <li><a href="/TaskM/pages/myday.php" class="active"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+            <li><a href="#" id="logoutBtn"><i class="material-icons left">logout</i><?= $username ?></a></li>
+        </ul>
+        <a href="#" data-target="mobile-nav" class="sidenav-trigger right"><i class="material-icons" style="color:#fff">menu</i></a>
+    </div>
+</nav>
+
+<ul class="sidenav" id="mobile-nav">
+    <li><a href="/TaskM/pages/dashboard.php"><i class="material-icons left">dashboard</i>主页</a></li>
+    <li><a href="/TaskM/pages/myday.php"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+    <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i>退出</a></li>
+</ul>
+
+<div class="myday-wrapper" id="mydayWrapper">
+    <!-- 内容由 JS 渲染 -->
+    <div style="text-align:center;color:var(--text-muted)">
+        <i class="material-icons" style="font-size:3rem">hourglass_empty</i>
+        <p>加载中...</p>
+    </div>
+</div>
+
+<div id="snackbar"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="/TaskM/assets/js/app.js"></script>
+<script>
+let tasks       = [];
+let currentIdx  = 0;
+let activePanel = null; // 'completed' | 'follow_up' | null
+
+document.addEventListener('DOMContentLoaded', async () => {
+    M.AutoInit();
+    await loadTasks();
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+    document.getElementById('logoutBtnMobile')?.addEventListener('click', logout);
+});
+
+async function loadTasks() {
+    try {
+        const data = await apiGet('/TaskM/api/tasks/list.php?sort=created_at');
+        tasks = (data.tasks || []).filter(t => t.is_completed != 1);
+        currentIdx  = 0;
+        activePanel = null;
+        render();
+    } catch(e) {
+        document.getElementById('mydayWrapper').innerHTML =
+            '<div style="text-align:center;color:var(--danger)">加载失败，请刷新重试</div>';
+    }
+}
+
+function render() {
+    const wrapper = document.getElementById('mydayWrapper');
+
+    if (!tasks.length) {
+        wrapper.innerHTML = `
+            <div class="myday-done">
+                <div class="done-icon"><i class="material-icons" style="font-size:5rem;color:var(--success)">check_circle</i></div>
+                <p style="font-size:1.2rem;font-weight:700;color:var(--text);margin-top:16px">今日任务全部处理完毕！</p>
+                <p style="color:var(--text-muted)">保持节奏，明天继续加油</p>
+                <a href="/TaskM/pages/dashboard.php" class="btn btn-primary waves-effect" style="margin-top:20px">
+                    <i class="material-icons left">dashboard</i>返回主页
+                </a>
+            </div>`;
+        return;
+    }
+
+    if (currentIdx >= tasks.length) {
+        wrapper.innerHTML = `
+            <div class="myday-done">
+                <div class="done-icon"><i class="material-icons" style="font-size:5rem;color:var(--success)">done_all</i></div>
+                <p style="font-size:1.2rem;font-weight:700;color:var(--text);margin-top:16px">所有 ${tasks.length} 个任务已处理</p>
+                <p style="color:var(--text-muted)">今日进展已全部记录</p>
+                <a href="/TaskM/pages/dashboard.php" class="btn btn-primary waves-effect" style="margin-top:20px">
+                    <i class="material-icons left">dashboard</i>返回主页
+                </a>
+            </div>`;
+        return;
+    }
+
+    const task = tasks[currentIdx];
+    const tags = Array.isArray(task.tags) ? task.tags : [];
+    const prog = parseInt(task.progress) || 0;
+
+    wrapper.innerHTML = `
+    <div class="myday-card">
+        <div class="myday-counter">
+            <span style="font-weight:700;color:var(--primary)">${currentIdx + 1}</span> / ${tasks.length}
+        </div>
+
+        <div class="task-meta" style="margin-bottom:10px">
+            ${task.category ? `<span class="chip">${escHtml(task.category)}</span>` : ''}
+            ${tags.map(t => `<span class="chip tag">${escHtml(t)}</span>`).join('')}
+            ${task.ddl ? `<span style="font-size:.82rem;color:var(--text-muted);${ddlClass(task.ddl)}"><i class="material-icons" style="font-size:.9rem;vertical-align:middle">event</i>${formatDate(task.ddl)}</span>` : ''}
+        </div>
+
+        <div class="myday-title">${escHtml(task.title)}</div>
+
+        ${task.description ? `<p style="color:var(--text-muted);font-size:.9rem;margin-top:6px">${escHtml(task.description)}</p>` : ''}
+
+        <div class="progress-wrap" style="margin-top:14px">
+            <div class="progress-label">
+                <span>当前进度</span><span>${prog}%</span>
+            </div>
+            <div class="progress ${prog===100?'progress-100':''}">
+                <div class="determinate" style="width:${prog}%"></div>
+            </div>
+        </div>
+
+        <div class="myday-actions">
+            <button class="btn btn-dark waves-effect" id="btnNoProgress">
+                <i class="material-icons left">remove_circle_outline</i>今天没做
+            </button>
+            <button class="btn btn-primary waves-effect" id="btnCompleted">
+                <i class="material-icons left">check_circle</i>今天完成
+            </button>
+            <button class="btn btn-outline waves-effect" id="btnFollowUp">
+                <i class="material-icons left">trending_up</i>今天跟进
+            </button>
+        </div>
+
+        <!-- 今天完成面板 -->
+        <div id="panelCompleted" class="myday-expand" style="display:none">
+            <p style="font-weight:700;color:var(--text);margin-bottom:10px">
+                <i class="material-icons left" style="color:var(--success);vertical-align:middle">check_circle</i>完成了什么？
+            </p>
+            <textarea class="myday-textarea" id="completedContent" placeholder="记录一下你完成了什么，做到了什么..."></textarea>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+                <button class="btn btn-outline waves-effect" id="cancelCompleted">取消</button>
+                <button class="btn btn-primary waves-effect" id="submitCompleted">
+                    <i class="material-icons left">send</i>提交完成
+                </button>
+            </div>
+        </div>
+
+        <!-- 今天跟进面板 -->
+        <div id="panelFollowUp" class="myday-expand" style="display:none">
+            <p style="font-weight:700;color:var(--text);margin-bottom:10px">
+                <i class="material-icons left" style="color:var(--warning);vertical-align:middle">trending_up</i>今天的跟进记录
+            </p>
+            <textarea class="myday-textarea" id="followUpContent" placeholder="记录今天对这个任务的进展、思考或行动..."></textarea>
+            <div class="progress-input-row" style="margin-top:14px">
+                <label>整体进度</label>
+                <input type="range" id="followUpRange" min="0" max="100" value="${prog}" step="1">
+                <input type="number" id="followUpNum" min="0" max="100" value="${prog}" style="width:64px">
+                <span style="font-size:.9rem;color:var(--text-muted)">%</span>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+                <button class="btn btn-outline waves-effect" id="cancelFollowUp">取消</button>
+                <button class="btn btn-primary waves-effect" id="submitFollowUp">
+                    <i class="material-icons left">send</i>提交跟进
+                </button>
+            </div>
+        </div>
+    </div>`;
+
+    // ── Events ──
+    document.getElementById('btnNoProgress').addEventListener('click', () => submitCommit('no_progress', '', prog));
+
+    document.getElementById('btnCompleted').addEventListener('click', () => {
+        togglePanel('completed');
+    });
+
+    document.getElementById('btnFollowUp').addEventListener('click', () => {
+        togglePanel('follow_up');
+    });
+
+    document.getElementById('cancelCompleted')?.addEventListener('click', () => togglePanel(null));
+    document.getElementById('cancelFollowUp')?.addEventListener('click',  () => togglePanel(null));
+
+    document.getElementById('submitCompleted')?.addEventListener('click', () => {
+        const content = document.getElementById('completedContent').value.trim();
+        submitCommit('completed', content, 100);
+    });
+
+    document.getElementById('submitFollowUp')?.addEventListener('click', () => {
+        const content  = document.getElementById('followUpContent').value.trim();
+        const progress = parseInt(document.getElementById('followUpNum').value) || 0;
+        submitCommit('follow_up', content, progress);
+    });
+
+    // Sync range ↔ number
+    document.getElementById('followUpRange')?.addEventListener('input', (e) => {
+        document.getElementById('followUpNum').value = e.target.value;
+    });
+    document.getElementById('followUpNum')?.addEventListener('input', (e) => {
+        let v = parseInt(e.target.value) || 0;
+        v = Math.max(0, Math.min(100, v));
+        e.target.value = v;
+        document.getElementById('followUpRange').value = v;
+    });
+}
+
+function togglePanel(panel) {
+    activePanel = panel;
+    const pComp = document.getElementById('panelCompleted');
+    const pFoll = document.getElementById('panelFollowUp');
+    if (pComp) pComp.style.display = panel === 'completed'  ? 'block' : 'none';
+    if (pFoll) pFoll.style.display = panel === 'follow_up'  ? 'block' : 'none';
+}
+
+async function submitCommit(type, content, progress) {
+    const task = tasks[currentIdx];
+    const btns = ['btnNoProgress','btnCompleted','btnFollowUp','submitCompleted','submitFollowUp'];
+    btns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; });
+
+    try {
+        const data = await apiPost('/TaskM/api/commits/create.php', {
+            task_id: task.id, type, content, progress
+        });
+
+        if (data.success) {
+            const labels = { no_progress: '已记录：今日无进展', completed: '已标记完成', follow_up: '跟进已提交' };
+            showToast(labels[type] || '已提交');
+            currentIdx++;
+            activePanel = null;
+            render();
+        } else {
+            showToast(data.error || '提交失败');
+            btns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
+        }
+    } catch(e) {
+        showToast('网络错误，请重试');
+        btns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
+    }
+}
+
+async function logout() {
+    await apiPost('/TaskM/api/auth/logout.php', {});
+    window.location.href = '/TaskM/pages/login.php';
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

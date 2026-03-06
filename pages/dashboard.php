@@ -1,0 +1,309 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+if (empty($_SESSION['user_id'])) {
+    header('Location: /TaskM/pages/login.php');
+    exit;
+}
+$username = htmlspecialchars($_SESSION['username']);
+?>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主页 — TaskM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/TaskM/assets/css/app.css">
+</head>
+<body>
+
+<nav class="app-nav">
+    <div class="nav-wrapper container" style="max-width:800px">
+        <a href="#" class="brand-logo">TaskM</a>
+        <ul class="right hide-on-med-and-down">
+            <li><a href="/TaskM/pages/dashboard.php" class="active"><i class="material-icons left">dashboard</i>主页</a></li>
+            <li><a href="/TaskM/pages/myday.php"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+            <li><a href="#" id="logoutBtn"><i class="material-icons left">logout</i><?= $username ?></a></li>
+        </ul>
+        <a href="#" data-target="mobile-nav" class="sidenav-trigger right"><i class="material-icons" style="color:#fff">menu</i></a>
+    </div>
+</nav>
+
+<ul class="sidenav" id="mobile-nav">
+    <li><a href="/TaskM/pages/dashboard.php"><i class="material-icons left">dashboard</i>主页</a></li>
+    <li><a href="/TaskM/pages/myday.php"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+    <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i>退出 (<?= $username ?>)</a></li>
+</ul>
+
+<div class="container" style="max-width:800px;padding:20px 16px 80px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div>
+            <h5 style="margin:0;font-weight:800;color:var(--text)">你好，<?= $username ?> 👋</h5>
+            <p style="margin:4px 0 0;color:var(--text-muted);font-size:.88rem" id="taskSummary">加载中...</p>
+        </div>
+    </div>
+
+    <div class="sort-tabs">
+        <div class="sort-tab active" data-sort="created_at">
+            <i class="material-icons" style="font-size:.95rem;vertical-align:middle">access_time</i> 最新
+        </div>
+        <div class="sort-tab" data-sort="category">
+            <i class="material-icons" style="font-size:.95rem;vertical-align:middle">category</i> 按类别
+        </div>
+        <div class="sort-tab" data-sort="ddl">
+            <i class="material-icons" style="font-size:.95rem;vertical-align:middle">event</i> 按 DDL
+        </div>
+        <div class="sort-tab" data-sort="progress">
+            <i class="material-icons" style="font-size:.95rem;vertical-align:middle">trending_up</i> 按进度
+        </div>
+    </div>
+
+    <div id="taskList">
+        <div style="text-align:center;padding:60px 0;color:var(--text-muted)">
+            <i class="material-icons" style="font-size:3rem">hourglass_empty</i>
+            <p>加载中...</p>
+        </div>
+    </div>
+</div>
+
+<!-- FAB 新建任务 -->
+<a class="btn-floating btn-large fab-btn waves-effect waves-light" id="fabBtn">
+    <i class="material-icons">add</i>
+</a>
+
+<!-- Modal: 新建任务 -->
+<div id="createModal" class="modal">
+    <div class="modal-content">
+        <h5><i class="material-icons left" style="color:var(--primary)">add_task</i>新建任务</h5>
+        <div class="input-field">
+            <input type="text" id="newTitle" maxlength="200">
+            <label for="newTitle">任务标题 *</label>
+        </div>
+        <div class="input-field">
+            <textarea id="newDesc" class="materialize-textarea" style="height:70px;"></textarea>
+            <label for="newDesc">任务描述（可选）</label>
+        </div>
+        <div class="row" style="margin-bottom:0">
+            <div class="col s12 m6">
+                <div class="input-field">
+                    <input type="text" id="newCategory" list="categoryList" autocomplete="off">
+                    <label for="newCategory">类别（可选）</label>
+                    <datalist id="categoryList"></datalist>
+                </div>
+            </div>
+            <div class="col s12 m6">
+                <div class="input-field">
+                    <input type="datetime-local" id="newDdl">
+                    <label for="newDdl" class="active">DDL（仅参考，可选）</label>
+                </div>
+            </div>
+        </div>
+        <div class="input-field">
+            <input type="text" id="newTags" placeholder="用逗号分隔，如：工作,重要">
+            <label for="newTags" class="active">标签（可选，逗号分隔）</label>
+        </div>
+        <div id="createError" style="color:var(--danger);font-size:.85rem;display:none;margin-top:-8px;"></div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close btn btn-outline waves-effect" style="margin-right:8px">取消</a>
+        <button class="btn btn-primary waves-effect" id="createSubmitBtn">
+            <i class="material-icons left">save</i>创建
+        </button>
+    </div>
+</div>
+
+<div id="snackbar"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="/TaskM/assets/js/app.js"></script>
+<script>
+let currentSort = 'created_at';
+let allTasks    = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    M.AutoInit();
+    await loadTasks();
+    await loadCategories();
+
+    document.querySelectorAll('.sort-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.sort-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentSort = tab.dataset.sort;
+            loadTasks(currentSort);
+        });
+    });
+
+    document.getElementById('fabBtn').addEventListener('click', () => {
+        M.Modal.getInstance(document.getElementById('createModal')).open();
+    });
+
+    document.getElementById('createSubmitBtn').addEventListener('click', createTask);
+
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+    document.getElementById('logoutBtnMobile')?.addEventListener('click', logout);
+});
+
+async function loadTasks(sort = 'created_at') {
+    try {
+        const data = await apiGet(`/TaskM/api/tasks/list.php?sort=${sort}`);
+        allTasks = data.tasks || [];
+        renderTasks(allTasks, sort);
+
+        const total     = allTasks.length;
+        const completed = allTasks.filter(t => t.is_completed == 1).length;
+        document.getElementById('taskSummary').textContent =
+            total === 0 ? '还没有任务，点击右下角开始创建' :
+            `共 ${total} 个任务 · ${completed} 个已完成`;
+    } catch (e) {
+        document.getElementById('taskList').innerHTML =
+            '<div style="text-align:center;padding:40px;color:var(--danger)">加载失败，请刷新重试</div>';
+    }
+}
+
+function renderTasks(tasks, sort) {
+    const container = document.getElementById('taskList');
+    if (!tasks.length) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+                <i class="material-icons" style="font-size:3.5rem;color:var(--border)">inbox</i>
+                <p style="font-size:1rem;margin-top:12px">暂无任务</p>
+                <p style="font-size:.85rem">点击右下角 + 按钮创建第一个任务</p>
+            </div>`;
+        return;
+    }
+
+    if (sort === 'category') {
+        const groups = {};
+        tasks.forEach(t => {
+            const key = t.category || '未分类';
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(t);
+        });
+        let html = '';
+        Object.keys(groups).sort().forEach(cat => {
+            html += `<div class="category-group-header"><i class="material-icons" style="font-size:1rem">folder</i>${escHtml(cat)}</div>`;
+            groups[cat].forEach(t => { html += renderTaskCard(t); });
+        });
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = tasks.map(renderTaskCard).join('');
+    }
+
+    container.querySelectorAll('.task-card').forEach(card => {
+        card.addEventListener('click', () => {
+            window.location.href = `/TaskM/pages/task-detail.php?id=${card.dataset.id}`;
+        });
+    });
+}
+
+function renderTaskCard(task) {
+    const tags  = Array.isArray(task.tags) ? task.tags : [];
+    const prog  = parseInt(task.progress) || 0;
+    const is100 = prog === 100;
+    const ddlStr = task.ddl ? `<span style="${ddlClass(task.ddl)}"><i class="material-icons" style="font-size:.9rem">event</i>${formatDate(task.ddl)}</span>` : '';
+    const catStr = task.category ? `<span><i class="material-icons" style="font-size:.9rem">folder</i>${escHtml(task.category)}</span>` : '';
+    const tagStr = tags.map(t => `<span class="chip tag">${escHtml(t)}</span>`).join('');
+    const lastCommit = task.last_commit_content
+        ? `<div class="task-last-commit"><i class="material-icons" style="font-size:.85rem;vertical-align:middle">history</i> ${escHtml(task.last_commit_content)}</div>`
+        : '';
+    const completedBadge = task.is_completed == 1
+        ? '<span class="chip completed"><i class="material-icons" style="font-size:.8rem;vertical-align:middle">check</i> 已完成</span>' : '';
+
+    return `
+    <div class="task-card" data-id="${task.id}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div class="task-title">${escHtml(task.title)}</div>
+            ${completedBadge}
+        </div>
+        <div class="task-meta">
+            ${catStr}${ddlStr}
+        </div>
+        ${tagStr ? `<div style="margin-bottom:8px">${tagStr}</div>` : ''}
+        ${lastCommit}
+        <div class="progress-wrap">
+            <div class="progress-label">
+                <span>整体进度</span><span>${prog}%</span>
+            </div>
+            <div class="progress ${is100 ? 'progress-100' : ''}">
+                <div class="determinate" style="width:${prog}%"></div>
+            </div>
+        </div>
+    </div>`;
+}
+
+async function loadCategories() {
+    try {
+        const data = await apiGet('/TaskM/api/meta/categories.php');
+        const list = document.getElementById('categoryList');
+        (data.categories || []).forEach(cat => {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            list.appendChild(opt);
+        });
+    } catch(e) {}
+}
+
+async function createTask() {
+    const errEl = document.getElementById('createError');
+    errEl.style.display = 'none';
+
+    const title    = document.getElementById('newTitle').value.trim();
+    const desc     = document.getElementById('newDesc').value.trim();
+    const category = document.getElementById('newCategory').value.trim();
+    const ddl      = document.getElementById('newDdl').value;
+    const tagsRaw  = document.getElementById('newTags').value;
+    const tags     = tagsRaw ? tagsRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    if (!title) {
+        errEl.textContent = '请填写任务标题';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    const btn = document.getElementById('createSubmitBtn');
+    btn.disabled = true;
+
+    try {
+        const data = await apiPost('/TaskM/api/tasks/create.php', { title, description: desc, category, tags, ddl });
+        if (data.success) {
+            M.Modal.getInstance(document.getElementById('createModal')).close();
+            document.getElementById('newTitle').value    = '';
+            document.getElementById('newDesc').value     = '';
+            document.getElementById('newCategory').value = '';
+            document.getElementById('newDdl').value      = '';
+            document.getElementById('newTags').value     = '';
+            M.updateTextFields();
+            showToast('任务已创建');
+            await loadTasks(currentSort);
+            await loadCategories();
+        } else {
+            errEl.textContent = data.error || '创建失败';
+            errEl.style.display = 'block';
+        }
+    } catch (e) {
+        errEl.textContent = '网络错误，请重试';
+        errEl.style.display = 'block';
+    }
+    btn.disabled = false;
+}
+
+async function logout() {
+    await apiPost('/TaskM/api/auth/logout.php', {});
+    window.location.href = '/TaskM/pages/login.php';
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
