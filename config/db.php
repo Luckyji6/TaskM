@@ -1,5 +1,19 @@
 <?php
 
+// 关闭 PHP 错误 HTML 输出，防止污染 JSON 响应
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+error_reporting(E_ALL);
+
+// 将所有未捕获异常统一转为 JSON 响应
+set_exception_handler(function (Throwable $e) {
+    while (ob_get_level()) ob_end_clean();
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => '服务器内部错误：' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    exit;
+});
+
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'taskm');
 define('DB_USER', 'TaskM');
@@ -15,7 +29,7 @@ function getDB(): PDO {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ];
 
-        // 先不指定数据库连接，确保数据库存在后再切换
+        // 先不指定数据库，确保库存在后再切换
         $pdoRoot = new PDO(
             'mysql:host=' . DB_HOST . ';charset=' . DB_CHARSET,
             DB_USER, DB_PASS, $options
@@ -86,6 +100,7 @@ function generateId(string $prefix): string {
 }
 
 function jsonResponse(array $data, int $status = 200): never {
+    while (ob_get_level()) ob_end_clean();
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
