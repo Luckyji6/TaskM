@@ -1,16 +1,3 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-if (empty($_SESSION['user_id'])) {
-    header('Location: /TaskM/pages/login.php');
-    exit;
-}
-$taskId   = htmlspecialchars($_GET['id'] ?? '');
-$username = htmlspecialchars($_SESSION['username']);
-if (!$taskId) {
-    header('Location: /TaskM/pages/dashboard.php');
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -27,19 +14,19 @@ if (!$taskId) {
 
 <nav class="app-nav">
     <div class="nav-wrapper container" style="max-width:800px">
-        <a href="/TaskM/pages/dashboard.php" class="brand-logo">TaskM</a>
+        <a href="/TaskM/pages/dashboard.html" class="brand-logo">TaskM</a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="/TaskM/pages/dashboard.php"><i class="material-icons left">dashboard</i>主页</a></li>
-            <li><a href="/TaskM/pages/myday.php"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
-            <li><a href="#" id="logoutBtn"><i class="material-icons left">logout</i><?= $username ?></a></li>
+            <li><a href="/TaskM/pages/dashboard.html"><i class="material-icons left">dashboard</i>主页</a></li>
+            <li><a href="/TaskM/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+            <li><a href="#" id="logoutBtn"><i class="material-icons left">logout</i><span id="navUsername">...</span></a></li>
         </ul>
         <a href="#" data-target="mobile-nav" class="sidenav-trigger right"><i class="material-icons" style="color:#fff">menu</i></a>
     </div>
 </nav>
 
 <ul class="sidenav" id="mobile-nav">
-    <li><a href="/TaskM/pages/dashboard.php"><i class="material-icons left">dashboard</i>主页</a></li>
-    <li><a href="/TaskM/pages/myday.php"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+    <li><a href="/TaskM/pages/dashboard.html"><i class="material-icons left">dashboard</i>主页</a></li>
+    <li><a href="/TaskM/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
     <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i>退出</a></li>
 </ul>
 
@@ -55,11 +42,19 @@ if (!$taskId) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/TaskM/assets/js/app.js"></script>
 <script>
-const TASK_ID = '<?= $taskId ?>';
-let taskData  = null;
+const TASK_ID = new URLSearchParams(window.location.search).get('id');
 
 document.addEventListener('DOMContentLoaded', async () => {
     M.AutoInit();
+
+    if (!TASK_ID) { window.location.href = '/TaskM/pages/dashboard.html'; return; }
+
+    // 鉴权
+    const auth = await fetch('/TaskM/api/auth/check.php');
+    if (!auth.ok) { window.location.href = '/TaskM/pages/login.html'; return; }
+    const { user } = await auth.json();
+    document.getElementById('navUsername').textContent = user.username;
+
     await loadDetail();
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
     document.getElementById('logoutBtnMobile')?.addEventListener('click', logout);
@@ -73,7 +68,6 @@ async function loadDetail() {
                 '<div style="text-align:center;padding:60px;color:var(--danger)">任务不存在或无权访问</div>';
             return;
         }
-        taskData = data.task;
         renderDetail(data.task, data.commits || []);
     } catch(e) {
         document.getElementById('detailContainer').innerHTML =
@@ -82,8 +76,8 @@ async function loadDetail() {
 }
 
 function renderDetail(task, commits) {
-    const tags = Array.isArray(task.tags) ? task.tags : [];
-    const prog = parseInt(task.progress) || 0;
+    const tags  = Array.isArray(task.tags) ? task.tags : [];
+    const prog  = parseInt(task.progress) || 0;
     const is100 = prog === 100;
 
     const tagHtml = tags.map(t => `<span class="chip tag">${escHtml(t)}</span>`).join('');
@@ -99,12 +93,10 @@ function renderDetail(task, commits) {
         : '<p style="color:var(--text-muted);font-size:.9rem;padding:20px 0">暂无提交记录</p>';
 
     document.getElementById('detailContainer').innerHTML = `
-    <!-- 返回按钮 -->
-    <a href="/TaskM/pages/dashboard.php" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:.88rem;margin-bottom:16px;text-decoration:none;">
+    <a href="/TaskM/pages/dashboard.html" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:.88rem;margin-bottom:16px;text-decoration:none;">
         <i class="material-icons" style="font-size:1.1rem">arrow_back</i>返回主页
     </a>
 
-    <!-- 任务信息头 -->
     <div class="detail-header">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
             <h4 style="margin:0 0 10px;">${escHtml(task.title)}</h4>
@@ -115,27 +107,21 @@ function renderDetail(task, commits) {
         </div>
         ${task.description ? `<p style="color:var(--text-muted);font-size:.9rem;margin:0 0 12px;">${escHtml(task.description)}</p>` : ''}
         <div class="progress-wrap">
-            <div class="progress-label">
-                <span>整体进度</span><span>${prog}%</span>
-            </div>
+            <div class="progress-label"><span>整体进度</span><span>${prog}%</span></div>
             <div class="progress ${is100 ? 'progress-100' : ''}">
                 <div class="determinate" style="width:${prog}%"></div>
             </div>
         </div>
     </div>
 
-    <!-- Commit 时间线 -->
     <div style="background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:0">
         <h6 style="font-weight:800;color:var(--text);margin:0 0 20px;display:flex;align-items:center;gap:6px;">
             <i class="material-icons" style="color:var(--primary)">history</i>历史提交记录
             <span style="font-size:.8rem;color:var(--text-muted);font-weight:400">(${commits.length} 条)</span>
         </h6>
-        <ul class="timeline">
-            ${timelineHtml}
-        </ul>
+        <ul class="timeline">${timelineHtml}</ul>
     </div>
 
-    <!-- 今日操作面板 -->
     ${task.is_completed != 1 ? `
     <div class="detail-actions-panel" id="actionsPanel">
         <h6 style="font-weight:800;color:var(--text);margin:0 0 14px;display:flex;align-items:center;gap:6px;">
@@ -149,7 +135,6 @@ function renderDetail(task, commits) {
                 <i class="material-icons" style="font-size:.95rem;vertical-align:middle">trending_up</i> 今天跟进
             </button>
         </div>
-
         <div class="panel-content active" id="panelCompleted">
             <textarea class="myday-textarea" id="completedContent" placeholder="记录你完成了什么，做到了什么..."></textarea>
             <div style="margin-top:12px;text-align:right">
@@ -158,7 +143,6 @@ function renderDetail(task, commits) {
                 </button>
             </div>
         </div>
-
         <div class="panel-content" id="panelFollowUp">
             <textarea class="myday-textarea" id="followUpContent" placeholder="记录今天对这个任务的进展、行动或思考..."></textarea>
             <div class="progress-input-row" style="margin-top:14px">
@@ -176,17 +160,16 @@ function renderDetail(task, commits) {
     </div>` : ''}
     `;
 
-    // Panel tab switching
     document.querySelectorAll('.panel-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
             tab.classList.add('active');
-            document.getElementById('panel' + capitalize(tab.dataset.panel))?.classList.add('active');
+            const panelId = tab.dataset.panel === 'completed' ? 'panelCompleted' : 'panelFollowUp';
+            document.getElementById(panelId)?.classList.add('active');
         });
     });
 
-    // Sync range ↔ number
     document.getElementById('followUpRange')?.addEventListener('input', (e) => {
         document.getElementById('followUpNum').value = e.target.value;
     });
@@ -195,12 +178,10 @@ function renderDetail(task, commits) {
         e.target.value = v;
         document.getElementById('followUpRange').value = v;
     });
-
     document.getElementById('submitCompleted')?.addEventListener('click', () => {
         const content = document.getElementById('completedContent').value.trim();
         submitCommit('completed', content, 100);
     });
-
     document.getElementById('submitFollowUp')?.addEventListener('click', () => {
         const content  = document.getElementById('followUpContent').value.trim();
         const progress = parseInt(document.getElementById('followUpNum').value) || 0;
@@ -252,12 +233,7 @@ async function submitCommit(type, content, progress) {
 
 async function logout() {
     await apiPost('/TaskM/api/auth/logout.php', {});
-    window.location.href = '/TaskM/pages/login.php';
-}
-
-function capitalize(str) {
-    const map = { completed: 'Completed', follow_up: 'FollowUp' };
-    return map[str] || str;
+    window.location.href = '/TaskM/pages/login.html';
 }
 
 function escHtml(str) {

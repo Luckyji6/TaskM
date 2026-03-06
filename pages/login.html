@@ -1,10 +1,3 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-if (!empty($_SESSION['user_id'])) {
-    header('Location: /TaskM/pages/dashboard.php');
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -37,14 +30,14 @@ if (!empty($_SESSION['user_id'])) {
 
             <div id="errorMsg" style="color:var(--danger);font-size:.88rem;margin-bottom:12px;display:none;"></div>
 
-            <button type="submit" class="btn btn-primary waves-effect waves-light w100" style="width:100%;margin-top:8px;padding:12px;">
+            <button type="submit" class="btn btn-primary waves-effect waves-light" style="width:100%;margin-top:8px;padding:12px;">
                 <i class="material-icons left">login</i>登录
             </button>
         </form>
 
         <div style="text-align:center;margin-top:20px;font-size:.9rem;color:var(--text-muted)">
             还没有账号？
-            <a href="/TaskM/pages/register.php" style="color:var(--primary);font-weight:700;">立即注册</a>
+            <a href="/TaskM/pages/register.html" style="color:var(--primary);font-weight:700;">立即注册</a>
         </div>
     </div>
 </div>
@@ -52,6 +45,12 @@ if (!empty($_SESSION['user_id'])) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/TaskM/assets/js/app.js"></script>
 <script>
+// 已登录则直接跳转
+(async () => {
+    const res = await fetch('/TaskM/api/auth/check.php');
+    if (res.ok) window.location.href = '/TaskM/pages/dashboard.html';
+})();
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = document.getElementById('errorMsg');
@@ -75,7 +74,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         const data = await apiPost('/TaskM/api/auth/login.php', { email, hash_client: hashClient });
 
         if (data.success) {
-            window.location.href = '/TaskM/pages/dashboard.php';
+            window.location.href = '/TaskM/pages/dashboard.html';
         } else {
             errEl.textContent = data.error || '登录失败';
             errEl.style.display = 'block';
