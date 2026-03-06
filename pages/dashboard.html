@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link rel="stylesheet" href="/TaskM/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
 
@@ -16,8 +16,8 @@
     <div class="nav-wrapper container" style="max-width:800px">
         <a href="#" class="brand-logo">TaskM</a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="/TaskM/pages/dashboard.html" class="active"><i class="material-icons left">dashboard</i>主页</a></li>
-            <li><a href="/TaskM/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+            <li><a href="/pages/dashboard.html" class="active"><i class="material-icons left">dashboard</i>主页</a></li>
+            <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
             <li><a href="#" id="logoutBtn"><i class="material-icons left">logout</i><span id="navUsername">...</span></a></li>
         </ul>
         <a href="#" data-target="mobile-nav" class="sidenav-trigger right"><i class="material-icons" style="color:#fff">menu</i></a>
@@ -25,8 +25,8 @@
 </nav>
 
 <ul class="sidenav" id="mobile-nav">
-    <li><a href="/TaskM/pages/dashboard.html"><i class="material-icons left">dashboard</i>主页</a></li>
-    <li><a href="/TaskM/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
+    <li><a href="/pages/dashboard.html"><i class="material-icons left">dashboard</i>主页</a></li>
+    <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
     <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i>退出</a></li>
 </ul>
 
@@ -110,7 +110,7 @@
 <div id="snackbar"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-<script src="/TaskM/assets/js/app.js"></script>
+<script src="/assets/js/app.js"></script>
 <script>
 let currentSort = 'created_at';
 let allTasks    = [];
@@ -119,8 +119,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     M.AutoInit();
 
     // 鉴权：未登录则跳转
-    const auth = await fetch('/TaskM/api/auth/check.php');
-    if (!auth.ok) { window.location.href = '/TaskM/pages/login.html'; return; }
+    const auth = await fetch('/api/auth/check.php');
+    if (!auth.ok) { window.location.href = '/pages/login.html'; return; }
     const { user } = await auth.json();
     document.getElementById('navUsername').textContent = user.username;
     document.getElementById('greetName').textContent   = user.username;
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadTasks(sort = 'created_at') {
     try {
-        const data = await apiGet(`/TaskM/api/tasks/list.php?sort=${sort}`);
+        const data = await apiGet(`/api/tasks/list.php?sort=${sort}`);
         allTasks = data.tasks || [];
         renderTasks(allTasks, sort);
 
@@ -194,7 +194,7 @@ function renderTasks(tasks, sort) {
 
     container.querySelectorAll('.task-card').forEach(card => {
         card.addEventListener('click', () => {
-            window.location.href = `/TaskM/pages/task-detail.html?id=${card.dataset.id}`;
+            window.location.href = `/pages/task-detail.html?id=${card.dataset.id}`;
         });
     });
 }
@@ -232,7 +232,7 @@ function renderTaskCard(task) {
 
 async function loadCategories() {
     try {
-        const data = await apiGet('/TaskM/api/meta/categories.php');
+        const data = await apiGet('/api/meta/categories.php');
         const list = document.getElementById('categoryList');
         (data.categories || []).forEach(cat => {
             const opt = document.createElement('option');
@@ -263,7 +263,7 @@ async function createTask() {
     btn.disabled = true;
 
     try {
-        const data = await apiPost('/TaskM/api/tasks/create.php', { title, description: desc, category, tags, ddl });
+        const data = await apiPost('/api/tasks/create.php', { title, description: desc, category, tags, ddl });
         if (data.success) {
             M.Modal.getInstance(document.getElementById('createModal')).close();
             ['newTitle','newDesc','newCategory','newDdl','newTags'].forEach(id => {
@@ -285,8 +285,8 @@ async function createTask() {
 }
 
 async function logout() {
-    await apiPost('/TaskM/api/auth/logout.php', {});
-    window.location.href = '/TaskM/pages/login.html';
+    await apiPost('/api/auth/logout.php', {});
+    window.location.href = '/pages/login.html';
 }
 
 function escHtml(str) {

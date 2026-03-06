@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link rel="stylesheet" href="/TaskM/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
 <div class="auth-wrapper">
@@ -37,18 +37,18 @@
 
         <div style="text-align:center;margin-top:20px;font-size:.9rem;color:var(--text-muted)">
             还没有账号？
-            <a href="/TaskM/pages/register.html" style="color:var(--primary);font-weight:700;">立即注册</a>
+            <a href="/pages/register.html" style="color:var(--primary);font-weight:700;">立即注册</a>
         </div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-<script src="/TaskM/assets/js/app.js"></script>
+<script src="/assets/js/app.js"></script>
 <script>
 // 已登录则直接跳转
 (async () => {
-    const res = await fetch('/TaskM/api/auth/check.php');
-    if (res.ok) window.location.href = '/TaskM/pages/dashboard.html';
+    const res = await fetch('/api/auth/check.php');
+    if (res.ok) window.location.href = '/pages/dashboard.html';
 })();
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -71,10 +71,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     try {
         const hashClient = await sha256(password);
-        const data = await apiPost('/TaskM/api/auth/login.php', { email, hash_client: hashClient });
+        const data = await apiPost('/api/auth/login.php', { email, hash_client: hashClient });
 
         if (data.success) {
-            window.location.href = '/TaskM/pages/dashboard.html';
+            window.location.href = '/pages/dashboard.html';
         } else {
             errEl.textContent = data.error || '登录失败';
             errEl.style.display = 'block';

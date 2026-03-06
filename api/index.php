@@ -2,8 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 if (!empty($_SESSION['user_id'])) {
-    header('Location: /TaskM/pages/dashboard.html');
+    header('Location: /pages/dashboard.html');
 } else {
-    header('Location: /TaskM/pages/login.html');
+    header('Location: /pages/login.html');
 }
 exit;
