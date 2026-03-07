@@ -515,35 +515,54 @@ nav.app-nav .brand-logo:hover {
 }
 
 .task-node {
-    display: flex;
-    gap: 10px;
+    position: relative;
     margin-top: 14px;
-    padding: 10px 12px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.72);
+    padding: 10px 0 10px 24px;
+}
+
+.task-node::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary), var(--border));
+    border-radius: 1px;
 }
 
 .node-dot {
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(98, 77, 61, 0.08);
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    z-index: 1;
+}
+
+.node-dot i {
+    font-size: 10px !important;
 }
 
 .node-dot.dot-no_progress {
+    border-color: var(--text-muted);
     color: var(--text-muted);
 }
 
 .node-dot.dot-completed {
+    border-color: var(--success);
     color: var(--success);
 }
 
 .node-dot.dot-follow_up {
+    border-color: var(--warning);
     color: var(--warning);
 }
 
