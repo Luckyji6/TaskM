@@ -11,7 +11,7 @@ if (!$taskId) {
     jsonResponse(['error' => '缺少任务 ID'], 400);
 }
 
-$pdo  = getDB();
+$pdo  = getInitializedDB();
 $stmt = $pdo->prepare('SELECT * FROM tasks WHERE id = ? AND user_id = ?');
 $stmt->execute([$taskId, $user['id']]);
 $task = $stmt->fetch();

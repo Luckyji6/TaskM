@@ -27,7 +27,7 @@ if (strlen($hashClient) !== 64 || !ctype_xdigit($hashClient)) {
     jsonResponse(['error' => '密码格式不正确'], 400);
 }
 
-$pdo = getDB();
+$pdo = getInitializedDB();
 
 $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
 $stmt->execute([$email]);

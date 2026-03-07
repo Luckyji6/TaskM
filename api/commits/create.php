@@ -25,7 +25,7 @@ if (!in_array($type, $allowedTypes)) {
     jsonResponse(['error' => '无效的 commit 类型'], 400);
 }
 
-$pdo  = getDB();
+$pdo  = getInitializedDB();
 $stmt = $pdo->prepare('SELECT id, progress FROM tasks WHERE id = ? AND user_id = ?');
 $stmt->execute([$taskId, $user['id']]);
 $task = $stmt->fetch();

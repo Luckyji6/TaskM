@@ -12,14 +12,20 @@ if (!in_array($sort, $allowedSorts)) {
     $sort = 'created_at';
 }
 
-$pdo = getDB();
+$pdo = getInitializedDB();
 
-$orderBy = match($sort) {
-    'ddl'      => 'ISNULL(t.ddl), t.ddl ASC',
-    'category' => 't.category ASC, t.created_at DESC',
-    'progress' => 't.progress ASC',
-    default    => 't.created_at DESC',
-};
+$orderBy = 't.created_at DESC';
+switch ($sort) {
+    case 'ddl':
+        $orderBy = 'ISNULL(t.ddl), t.ddl ASC';
+        break;
+    case 'category':
+        $orderBy = 't.category ASC, t.created_at DESC';
+        break;
+    case 'progress':
+        $orderBy = 't.progress ASC';
+        break;
+}
 
 $sql = "
     SELECT

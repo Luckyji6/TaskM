@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 
 $user = requireAuth();
 
-$pdo = getDB();
+$pdo = getInitializedDB();
 
 $stmt = $pdo->prepare(
     "SELECT DISTINCT category FROM tasks WHERE user_id = ? AND category IS NOT NULL AND category != '' ORDER BY category ASC"

@@ -16,8 +16,8 @@ set_exception_handler(function (Throwable $e) {
 
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'taskm');
-define('DB_USER', 'TaskM');
-define('DB_PASS', 'WBwTxTMhczpHfhdM');
+define('DB_USER', 'root');
+define('DB_PASS', '123456jx');
 define('DB_CHARSET', 'utf8mb4');
 
 function getDB(): PDO {
@@ -92,6 +92,11 @@ function initDB(): void {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 }
 
+function getInitializedDB(): PDO {
+    initDB();
+    return getDB();
+}
+
 function generateId(string $prefix): string {
     return $prefix . '_' . sprintf(
         '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -120,5 +125,3 @@ function requireAuth(): array {
     }
     return ['id' => $_SESSION['user_id'], 'username' => $_SESSION['username']];
 }
-
-initDB();

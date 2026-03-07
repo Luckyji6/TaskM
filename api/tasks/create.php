@@ -30,7 +30,7 @@ if (!is_array($tags)) {
 }
 $tags = array_values(array_filter(array_map('trim', $tags)));
 
-$pdo    = getDB();
+$pdo    = getInitializedDB();
 $taskId = generateId('TASK');
 
 $stmt = $pdo->prepare(

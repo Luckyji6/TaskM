@@ -9,35 +9,123 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="/assets/css/app.css">
+    <style>
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: var(--bg);
+        }
+        .login-card {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-logo {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        .login-sub {
+            font-size: .88rem;
+            color: var(--text-muted);
+            margin-bottom: 36px;
+            text-align: center;
+        }
+        .login-card .input-field {
+            margin-bottom: 20px;
+        }
+        .login-card .input-field input {
+            border-bottom: 2px solid var(--border);
+            box-shadow: none;
+        }
+        .login-card .input-field input:focus {
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 1px 0 0 var(--primary);
+        }
+        .login-card .input-field label {
+            color: var(--text-muted);
+        }
+        .login-card .input-field input:focus + label,
+        .login-card .input-field input.valid + label {
+            color: var(--primary);
+        }
+        .login-card .prefix {
+            color: var(--primary);
+        }
+        .login-error {
+            color: var(--danger);
+            font-size: .85rem;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .login-btn {
+            width: 100%;
+            background: var(--primary);
+            border-radius: 8px;
+            text-transform: none;
+            font-weight: 700;
+            letter-spacing: .5px;
+            padding: 12px;
+            height: auto;
+            line-height: normal;
+        }
+        .login-btn:hover {
+            background: var(--primary-dk);
+        }
+        .login-btn:disabled {
+            opacity: .7;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: .9rem;
+            color: var(--text-muted);
+        }
+        .login-footer a {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        @media (max-width: 480px) {
+            .login-card { padding: 36px 24px 28px; }
+        }
+    </style>
 </head>
 <body>
-<div class="auth-wrapper">
-    <div class="auth-card">
-        <div class="auth-logo">TaskM</div>
-        <div class="auth-sub">追踪每一步进展，完成每一个目标</div>
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-logo">TaskM</div>
+        <div class="login-sub">追踪每一步进展，完成每一个目标</div>
 
         <form id="loginForm" novalidate>
             <div class="input-field">
-                <i class="material-icons prefix" style="color:var(--primary)">email</i>
-                <input type="email" id="email" required autocomplete="email">
+                <i class="material-icons prefix">email</i>
+                <input type="email" id="email" class="validate" autocomplete="email" required>
                 <label for="email">邮箱</label>
             </div>
             <div class="input-field">
-                <i class="material-icons prefix" style="color:var(--primary)">lock</i>
-                <input type="password" id="password" required autocomplete="current-password">
+                <i class="material-icons prefix">lock</i>
+                <input type="password" id="password" class="validate" autocomplete="current-password" required>
                 <label for="password">密码</label>
             </div>
 
-            <div id="errorMsg" style="color:var(--danger);font-size:.88rem;margin-bottom:12px;display:none;"></div>
+            <div class="login-error" id="errorMsg"></div>
 
-            <button type="submit" class="btn btn-primary waves-effect waves-light" style="width:100%;margin-top:8px;padding:12px;">
-                <i class="material-icons left">login</i>登录
+            <button type="submit" class="btn waves-effect waves-light login-btn" id="submitBtn">
+                登录
             </button>
         </form>
 
-        <div style="text-align:center;margin-top:20px;font-size:.9rem;color:var(--text-muted)">
-            还没有账号？
-            <a href="/pages/register.html" style="color:var(--primary);font-weight:700;">立即注册</a>
+        <div class="login-footer">
+            还没有账号？<a href="/pages/register.html">立即注册</a>
         </div>
     </div>
 </div>
@@ -45,7 +133,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/assets/js/app.js"></script>
 <script>
-// 已登录则直接跳转
 (async () => {
     const res = await fetch('/api/auth/check.php');
     if (res.ok) window.location.href = '/pages/dashboard.html';
@@ -54,6 +141,7 @@
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = document.getElementById('errorMsg');
+    const btn   = document.getElementById('submitBtn');
     errEl.style.display = 'none';
 
     const email    = document.getElementById('email').value.trim();
@@ -65,9 +153,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         return;
     }
 
-    const btn = e.target.querySelector('button[type=submit]');
     btn.disabled = true;
-    btn.innerHTML = '<i class="material-icons left">hourglass_empty</i>登录中...';
+    btn.textContent = '登录中...';
 
     try {
         const hashClient = await sha256(password);
@@ -76,16 +163,16 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         if (data.success) {
             window.location.href = '/pages/dashboard.html';
         } else {
-            errEl.textContent = data.error || '登录失败';
+            errEl.textContent   = data.error || '登录失败';
             errEl.style.display = 'block';
-            btn.disabled = false;
-            btn.innerHTML = '<i class="material-icons left">login</i>登录';
+            btn.disabled        = false;
+            btn.textContent     = '登录';
         }
     } catch (err) {
-        errEl.textContent = '网络错误，请重试';
+        errEl.textContent   = '网络错误，请重试';
         errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.innerHTML = '<i class="material-icons left">login</i>登录';
+        btn.disabled        = false;
+        btn.textContent     = '登录';
     }
 });
 </script>
