@@ -607,6 +607,22 @@ nav.app-nav .brand-logo:hover {
     color: var(--text-muted) !important;
 }
 
+.btn-danger {
+    background: var(--danger) !important;
+    color: #fff !important;
+    border-radius: 999px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    box-shadow: none !important;
+}
+
+.btn-sm {
+    font-size: 13px !important;
+    padding: 0 16px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+}
+
 .fab-btn {
     position: fixed !important;
     right: 28px;

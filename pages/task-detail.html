@@ -49,6 +49,17 @@
 
 <div id="snackbar"></div>
 
+<div id="deleteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:var(--surface);border-radius:10px;padding:24px;max-width:400px;margin:20px;box-shadow:0 4px 20px rgba(0,0,0,0.15)">
+        <h3 style="margin:0 0 12px 0;font-size:18px;font-weight:600;color:var(--text)">确认删除</h3>
+        <p style="margin:0 0 20px 0;color:var(--text-muted);font-size:14px">删除后无法恢复，确定要删除这个任务吗？</p>
+        <div style="display:flex;gap:12px;justify-content:flex-end">
+            <button class="btn btn-outline waves-effect" id="cancelDeleteBtn">取消</button>
+            <button class="btn btn-danger waves-effect" id="confirmDeleteBtn">确认删除</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/assets/js/app.js"></script>
 <script>
@@ -123,6 +134,7 @@ function renderDetail(task, commits) {
             <div class="detail-title-row">
                 <h1 class="detail-title">${escHtml(task.title)}</h1>
                 ${completedBadge}
+                <button class="btn btn-danger btn-sm waves-effect" id="deleteTaskBtn" style="margin-left:auto"><i class="material-icons left">delete</i>删除</button>
             </div>
             <div class="task-chips">${categoryHtml}${tagHtml}${ddlHtml}</div>
             ${task.description ? `<p class="detail-desc">${escHtml(task.description)}</p>` : ''}
@@ -232,6 +244,18 @@ function renderDetail(task, commits) {
         const progressValue = parseInt(document.getElementById('followUpNum').value, 10) || 0;
         submitCommit('follow_up', content, progressValue);
     });
+
+    document.getElementById('deleteTaskBtn')?.addEventListener('click', () => {
+        const modal = document.getElementById('deleteModal');
+        if (modal) modal.style.display = 'flex';
+    });
+
+    document.getElementById('cancelDeleteBtn')?.addEventListener('click', () => {
+        const modal = document.getElementById('deleteModal');
+        if (modal) modal.style.display = 'none';
+    });
+
+    document.getElementById('confirmDeleteBtn')?.addEventListener('click', deleteTask);
 }
 
 function renderCommit(commit) {
@@ -281,6 +305,28 @@ async function submitCommit(type, content, progress) {
 async function logout() {
     await apiPost('/api/auth/logout.php', {});
     window.location.href = '/pages/login.html';
+}
+
+async function deleteTask() {
+    const btn = document.getElementById('confirmDeleteBtn');
+    if (btn) btn.disabled = true;
+
+    try {
+        const data = await apiPost('/api/tasks/delete.php', { id: TASK_ID });
+
+        if (data.success) {
+            showToast('任务已删除');
+            setTimeout(() => {
+                window.location.href = '/pages/dashboard.html';
+            }, 500);
+        } else {
+            showToast(data.error || '删除失败');
+            if (btn) btn.disabled = false;
+        }
+    } catch (e) {
+        showToast('网络错误，请重试');
+        if (btn) btn.disabled = false;
+    }
 }
 
 function escHtml(str) {
