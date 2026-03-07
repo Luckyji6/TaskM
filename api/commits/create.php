@@ -57,7 +57,7 @@ $stmt = $pdo->prepare(
 $stmt->execute([$commitId, $taskId, $user['id'], $type, $content, $progress]);
 
 $updateProgress = $progress;
-$isCompleted    = ($type === 'completed') ? 1 : 0;
+$isCompleted    = ($type === 'completed' || $updateProgress >= 100) ? 1 : 0;
 
 $pdo->prepare('UPDATE tasks SET progress = ?, is_completed = ?, updated_at = NOW() WHERE id = ?')
     ->execute([$updateProgress, $isCompleted, $taskId]);

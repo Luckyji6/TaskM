@@ -300,6 +300,13 @@ let allTasks = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     M.AutoInit();
+    
+    const sideElems = document.querySelectorAll('.sidenav');
+    sideElems.forEach(elem => {
+        if (!elem.M_Sidenav) {
+            M.Sidenav.init(elem);
+        }
+    });
 
     const auth = await fetch('/api/auth/check.php');
     if (!auth.ok) {
@@ -499,7 +506,7 @@ function renderCompletedSection(tasks) {
                     <span style="font-weight:700;color:var(--text-muted)">已完成任务</span>
                     <span class="chip tag" style="font-size:0.75rem">${tasks.length} 个</span>
                 </div>
-                <i class="material-icons completed-toggle-icon">expand_less</i>
+                <i class="material-icons completed-toggle-icon">expand_more</i>
             </div>
             <div class="completed-tasks-body" style="display:none">
                 ${tasksHtml}
@@ -514,12 +521,12 @@ function toggleCompletedSection(event) {
     const icon = section.querySelector('.completed-toggle-icon');
     
     if (section.classList.contains('collapsed')) {
-        body.style.display = 'block';
-        icon.textContent = 'expand_more';
+        body.style.display = 'grid';
+        icon.textContent = 'expand_less';
         section.classList.remove('collapsed');
     } else {
         body.style.display = 'none';
-        icon.textContent = 'expand_less';
+        icon.textContent = 'expand_more';
         section.classList.add('collapsed');
     }
 }

@@ -450,12 +450,9 @@ nav.app-nav .brand-logo:hover {
     transition: transform 0.2s ease;
 }
 
-.completed-section.collapsed .completed-toggle-icon {
-    transform: rotate(180deg);
-}
-
 .completed-tasks-body {
-    display: block;
+    display: grid;
+    gap: 14px;
 }
 
 .completed-section.collapsed .completed-tasks-body {

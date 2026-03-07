@@ -56,6 +56,18 @@ if (empty($fields)) {
     jsonResponse(['error' => '没有可更新的字段'], 400);
 }
 
+// 进度到 100% 自动标记完成，低于 100% 自动取消完成
+if (array_key_exists('progress', $body) && !array_key_exists('is_completed', $body)) {
+    $progressVal = max(0, min(100, (int)$body['progress']));
+    if ($progressVal >= 100) {
+        $fields[] = '`is_completed` = ?';
+        $values[] = 1;
+    } else {
+        $fields[] = '`is_completed` = ?';
+        $values[] = 0;
+    }
+}
+
 $values[] = $taskId;
 $sql      = 'UPDATE tasks SET ' . implode(', ', $fields) . ' WHERE id = ?';
 $pdo->prepare($sql)->execute($values);
