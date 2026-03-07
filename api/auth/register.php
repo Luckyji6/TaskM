@@ -1,6 +1,7 @@
 <?php
 ob_start();
 require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../config/captcha.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
@@ -14,8 +15,9 @@ $body = json_decode(file_get_contents('php://input'), true);
 $username  = trim($body['username'] ?? '');
 $email     = trim($body['email'] ?? '');
 $hashClient = trim($body['hash_client'] ?? '');
+$captchaVerifyParam = $body['captchaVerifyParam'] ?? '';
 
-if (!$username || !$email || !$hashClient) {
+if (!$username || !$email || !$hashClient || !$captchaVerifyParam) {
     jsonResponse(['error' => '参数不完整'], 400);
 }
 
@@ -25,6 +27,14 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 if (strlen($hashClient) !== 64 || !ctype_xdigit($hashClient)) {
     jsonResponse(['error' => '密码格式不正确'], 400);
+}
+
+$captchaResult = verifyAliyunCaptcha($captchaVerifyParam);
+if (!$captchaResult['success']) {
+    jsonResponse([
+        'error' => $captchaResult['error'],
+        'captchaVerifyResult' => $captchaResult['captchaResult'],
+    ], $captchaResult['captchaResult'] === false ? 400 : 500);
 }
 
 $pdo = getInitializedDB();
@@ -52,5 +62,6 @@ $_SESSION['username'] = $username;
 
 jsonResponse([
     'success' => true,
+    'captchaVerifyResult' => true,
     'user'    => ['id' => $userId, 'username' => $username, 'email' => $email],
 ]);

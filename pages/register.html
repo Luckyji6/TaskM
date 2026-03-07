@@ -9,6 +9,13 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="/assets/css/app.css?v=5">
+    <script>
+        window.AliyunCaptchaConfig = {
+            region: "cn",
+            prefix: "rcp0uv",
+        };
+    </script>
+    <script type="text/javascript" src="https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js"></script>
 </head>
 <body>
 <main class="auth-page">
@@ -47,8 +54,9 @@
                     <input type="password" id="passwordConfirm" class="validate" autocomplete="new-password" required>
                     <label for="passwordConfirm">确认密码</label>
                 </div>
+                <div id="captcha-element"></div>
                 <div class="form-error" id="errorMsg"></div>
-                <button type="submit" class="btn btn-primary waves-effect auth-submit" id="submitBtn">注册</button>
+                <button type="button" class="btn btn-primary waves-effect auth-submit" id="submitBtn">注册</button>
             </form>
             <div class="auth-switch">已有账号？<a href="/pages/login.html">立即登录</a></div>
         </div>
@@ -63,12 +71,10 @@
     if (res.ok) window.location.href = '/pages/dashboard.html';
 })();
 
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const errEl = document.getElementById('errorMsg');
-    const btn = document.getElementById('submitBtn');
-    errEl.style.display = 'none';
+let captchaInstance = null;
 
+function validateForm() {
+    const errEl = document.getElementById('errorMsg');
     const username = document.getElementById('username').value.trim();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -77,45 +83,87 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     if (!username || !email || !password) {
         errEl.textContent = '请填写完整信息';
         errEl.style.display = 'block';
-        return;
+        return false;
     }
     if (username.length < 2) {
         errEl.textContent = '用户名至少需要 2 个字符';
         errEl.style.display = 'block';
-        return;
+        return false;
     }
     if (password.length < 6) {
         errEl.textContent = '密码至少需要 6 位';
         errEl.style.display = 'block';
-        return;
+        return false;
     }
     if (password !== passwordConfirm) {
         errEl.textContent = '两次密码输入不一致';
         errEl.style.display = 'block';
-        return;
+        return false;
     }
+    errEl.style.display = 'none';
+    return true;
+}
 
-    btn.disabled = true;
-    btn.textContent = '注册中...';
+window.initAliyunCaptcha({
+    SceneId: 'q6rzke7a',
+    mode: 'popup',
+    element: '#captcha-element',
+    button: '#submitBtn',
+    captchaVerifyCallback: async function(captchaVerifyParam) {
+        const errEl = document.getElementById('errorMsg');
+        
+        if (!validateForm()) {
+            return { captchaResult: false, bizResult: false };
+        }
 
-    try {
-        const hashClient = await sha256(password);
-        const data = await apiPost('/api/auth/register.php', { username, email, hash_client: hashClient });
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
 
-        if (data.success) {
+        try {
+            const hashClient = await sha256(password);
+            const data = await apiPost('/api/auth/register.php', { 
+                username, 
+                email, 
+                hash_client: hashClient,
+                captchaVerifyParam: captchaVerifyParam
+            });
+
+            if (!data.success && data.captchaVerifyResult !== false) {
+                errEl.textContent = data.error || '注册失败';
+                errEl.style.display = 'block';
+            }
+
+            return { 
+                captchaResult: data.captchaVerifyResult === false ? false : true,
+                bizResult: data.success === true
+            };
+        } catch (err) {
+            errEl.textContent = '网络错误，请重试';
+            errEl.style.display = 'block';
+            return { captchaResult: false, bizResult: false };
+        }
+    },
+    onBizResultCallback: function(bizResult) {
+        const errEl = document.getElementById('errorMsg');
+        if (bizResult === true) {
             window.location.href = '/pages/dashboard.html';
         } else {
-            errEl.textContent = data.error || '注册失败';
-            errEl.style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = '注册';
+            if (!errEl.textContent) {
+                errEl.textContent = '注册失败，请重试';
+                errEl.style.display = 'block';
+            }
         }
-    } catch (err) {
-        errEl.textContent = '网络错误，请重试';
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = '注册';
-    }
+    },
+    getInstance: function(instance) {
+        captchaInstance = instance;
+    },
+    slideStyle: { width: 360, height: 40 },
+    language: 'cn',
+});
+
+document.getElementById('submitBtn').addEventListener('click', function(e) {
+    validateForm();
 });
 </script>
 </body>

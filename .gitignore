@@ -16,6 +16,9 @@ logs/
 vendor/
 node_modules/
 
+# 阿里云验证码配置
+config/captcha.php
+
 # 环境配置（敏感信息不提交）
 .env
 .env.local

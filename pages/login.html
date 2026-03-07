@@ -9,6 +9,13 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="/assets/css/app.css?v=5">
+    <script>
+        window.AliyunCaptchaConfig = {
+            region: "cn",
+            prefix: "rcp0uv",
+        };
+    </script>
+    <script type="text/javascript" src="https://o.alicdn.com/captcha-frontend/aliyunCaptcha/AliyunCaptcha.js"></script>
 </head>
 <body>
 <main class="auth-page">
@@ -37,8 +44,9 @@
                     <input type="password" id="password" class="validate" autocomplete="current-password" required>
                     <label for="password">密码</label>
                 </div>
+                <div id="captcha-element"></div>
                 <div class="form-error" id="errorMsg"></div>
-                <button type="submit" class="btn btn-primary waves-effect auth-submit" id="submitBtn">登录</button>
+                <button type="button" class="btn btn-primary waves-effect auth-submit" id="submitBtn">登录</button>
             </form>
             <div class="auth-switch">还没有账号？<a href="/pages/register.html">立即注册</a></div>
         </div>
@@ -53,42 +61,80 @@
     if (res.ok) window.location.href = '/pages/dashboard.html';
 })();
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const errEl = document.getElementById('errorMsg');
-    const btn = document.getElementById('submitBtn');
-    errEl.style.display = 'none';
+let captchaInstance = null;
+let formData = null;
 
+window.initAliyunCaptcha({
+    SceneId: 'q6rzke7a',
+    mode: 'popup',
+    element: '#captcha-element',
+    button: '#submitBtn',
+    captchaVerifyCallback: async function(captchaVerifyParam) {
+        const errEl = document.getElementById('errorMsg');
+        errEl.style.display = 'none';
+
+        const account = document.getElementById('account').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!account || !password) {
+            errEl.textContent = '请填写完整信息';
+            errEl.style.display = 'block';
+            return { captchaResult: false, bizResult: false };
+        }
+
+        try {
+            const hashClient = await sha256(password);
+            const data = await apiPost('/api/auth/login.php', { 
+                account, 
+                hash_client: hashClient,
+                captchaVerifyParam: captchaVerifyParam
+            });
+
+            if (!data.success && data.captchaVerifyResult !== false) {
+                errEl.textContent = data.error || '登录失败';
+                errEl.style.display = 'block';
+            }
+
+            return { 
+                captchaResult: data.captchaVerifyResult === false ? false : true,
+                bizResult: data.success === true
+            };
+        } catch (err) {
+            errEl.textContent = '网络错误，请重试';
+            errEl.style.display = 'block';
+            return { captchaResult: false, bizResult: false };
+        }
+    },
+    onBizResultCallback: function(bizResult) {
+        const errEl = document.getElementById('errorMsg');
+        if (bizResult === true) {
+            window.location.href = '/pages/dashboard.html';
+        } else {
+            if (!errEl.textContent) {
+                errEl.textContent = '登录失败，请重试';
+                errEl.style.display = 'block';
+            }
+        }
+    },
+    getInstance: function(instance) {
+        captchaInstance = instance;
+    },
+    slideStyle: { width: 360, height: 40 },
+    language: 'cn',
+});
+
+document.getElementById('submitBtn').addEventListener('click', function(e) {
     const account = document.getElementById('account').value.trim();
     const password = document.getElementById('password').value;
-
+    const errEl = document.getElementById('errorMsg');
+    
     if (!account || !password) {
         errEl.textContent = '请填写完整信息';
         errEl.style.display = 'block';
         return;
     }
-
-    btn.disabled = true;
-    btn.textContent = '登录中...';
-
-    try {
-        const hashClient = await sha256(password);
-        const data = await apiPost('/api/auth/login.php', { account, hash_client: hashClient });
-
-        if (data.success) {
-            window.location.href = '/pages/dashboard.html';
-        } else {
-            errEl.textContent = data.error || '登录失败';
-            errEl.style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = '登录';
-        }
-    } catch (err) {
-        errEl.textContent = '网络错误，请重试';
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = '登录';
-    }
+    errEl.textContent = '';
+    errEl.style.display = 'none';
 });
 </script>
 </body>
