@@ -80,6 +80,11 @@
             color: var(--primary);
         }
 
+        .emph {
+            color: var(--primary);
+            font-weight: 900;
+        }
+
         .onboarding-progress {
             display: inline-flex;
             align-items: center;
@@ -595,7 +600,7 @@ const steps = [
         }
     },
     {
-        title: '我们不是催命的清单',
+        title: '我们不是{{催命的}}清单',
         desc: '很多任务工具的问题不是功能不够，而是信息太满。\nTaskM 会把真正需要关注的任务留在前面，把已经完成的内容折叠起来。',
         note: '重点一直只有一个：少一点干扰，多一点推进。',
         visual: {
@@ -610,7 +615,7 @@ const steps = [
         }
     },
     {
-        title: '先看主页，',
+        title: '先看{{主页}}，',
         desc: '主页是总览区。\n这里会看到任务列表、分类、DDL、进度和最近记录。\n\n决定先做什么之后，再进入按天处理页逐个推进。',
         note: '主页负责看清全局和顺序。',
         visual: {
@@ -627,7 +632,7 @@ const steps = [
         }
     },
     {
-        title: '「我的一天」',
+        title: '「{{我的一天}}」',
         desc: '「我的一天」是执行页。\n页面会一张一张带出待处理任务，每次只需要关注当前这一项。\n\n这里可以直接记录今天没做、今天跟进，或者完成。',
         note: '按天处理页负责把动作真正落下来。',
         visual: {
@@ -644,7 +649,7 @@ const steps = [
         }
     },
     {
-        title: '真正常用的功能，其实就这几件事',
+        title: '{{真正常用的}}功能，其实就这几件事',
         desc: '最常用的动作其实不多：创建任务、提交跟进、标记完成。\n当进度到 100% 时，任务会自动进入已完成折叠区。',
         note: '如果后面还要继续，也可以重新返回未完成状态。',
         visual: {
@@ -655,6 +660,20 @@ const steps = [
                 { title: '新建任务', desc: '把标题、背景、类别和 DDL 放清楚。' },
                 { title: '提交跟进', desc: '把今天的推进和进度记录下来。' },
                 { title: '完成归档', desc: '任务完成后自动折叠到底部，列表更干净。' }
+            ]
+        }
+    },
+    {
+        title: '类别和标签真的没有区别。\n{{随便用}}',
+        desc: '创建任务时填的类别和标签，本质上都是帮你分组和筛选。\n不用纠结该放哪边，按自己的习惯来就行。',
+        note: '',
+        visual: {
+            type: 'text',
+            kicker: '小提示',
+            title: '不必区分太细',
+            items: [
+                { title: '类别', desc: '比如 工作、学习、生活，用来粗分任务。' },
+                { title: '标签', desc: '比如 重要、紧急，用来打标记。混用也没关系。' }
             ]
         }
     },
@@ -865,7 +884,8 @@ function escAttr(str) {
 }
 
 function renderRichText(str, allowLineBreaks = false) {
-    const escaped = escHtml(str || '');
+    let escaped = escHtml(str || '');
+    escaped = escaped.replace(/\{\{([^}]+)\}\}/g, (_, c) => '<span class="emph">' + escHtml(c) + '</span>');
     const withBrand = escaped.replace(/TaskM/g, '<span class="brand-task">Task</span><span class="brand-m">M</span>');
     return allowLineBreaks ? withBrand.replace(/\n/g, '<br>') : withBrand;
 }
