@@ -35,6 +35,12 @@ if ($stmt->fetch()) {
     jsonResponse(['error' => '该邮箱已被注册'], 409);
 }
 
+$stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
+$stmt->execute([$username]);
+if ($stmt->fetch()) {
+    jsonResponse(['error' => '该用户名已被使用'], 409);
+}
+
 $passwordHash = password_hash($hashClient, PASSWORD_BCRYPT, ['cost' => 12]);
 $userId = generateId('USER');
 
