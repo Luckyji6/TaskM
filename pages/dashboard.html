@@ -16,6 +16,157 @@
             background: rgba(243, 239, 232, 0.85) !important;
             box-shadow: none !important;
         }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-side {
+                padding: 20px 22px;
+            }
+
+            .hero-meta {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding-top: 14px;
+                padding-bottom: 72px;
+            }
+
+            .shell {
+                width: min(100vw - 20px, 1120px);
+            }
+
+            .hero {
+                gap: 12px;
+                margin-bottom: 14px;
+            }
+
+            .hero-card,
+            .hero-side {
+                padding: 18px 16px;
+                border-radius: 24px;
+            }
+
+            .hero-eyebrow {
+                padding: 6px 10px;
+                font-size: 0.74rem;
+            }
+
+            .hero-title {
+                margin: 14px 0 8px;
+                font-size: 1.65rem;
+                line-height: 1.18;
+            }
+
+            .hero-desc,
+            .stat-caption {
+                font-size: 0.88rem;
+                line-height: 1.6;
+            }
+
+            .hero-meta {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin-top: 16px;
+            }
+
+            .metric-pill {
+                min-width: 0;
+                padding: 14px;
+                border-radius: 18px;
+            }
+
+            .metric-pill + .metric-pill {
+                margin-top: 0;
+            }
+
+            .metric-label {
+                font-size: 0.76rem;
+            }
+
+            .metric-value {
+                font-size: 1.15rem;
+            }
+
+            .insight-copy {
+                font-size: 0.78rem !important;
+                line-height: 1.55;
+            }
+
+            .insight-list {
+                margin-top: 8px !important;
+                gap: 6px;
+            }
+
+            .insight-list > *:nth-child(n + 2) {
+                display: none;
+            }
+
+            .task-last-commit {
+                padding: 9px 10px !important;
+                border-radius: 14px;
+            }
+
+            .task-last-commit strong {
+                display: block;
+                font-size: 0.88rem;
+                line-height: 1.4;
+            }
+
+            .task-last-commit span,
+            .task-last-commit div {
+                font-size: 0.76rem !important;
+                line-height: 1.45;
+            }
+
+            .hero-side .stat-number {
+                font-size: 2.2rem;
+            }
+
+            .hero-side .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .page-toolbar {
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .section-subtitle {
+                font-size: 0.8rem;
+            }
+
+            .segmented {
+                width: 100%;
+                justify-content: flex-start;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding: 4px;
+                gap: 6px;
+            }
+
+            .sort-tab {
+                flex: 0 0 auto;
+                padding: 9px 12px;
+                font-size: 0.8rem;
+            }
+
+            .task-grid {
+                gap: 10px;
+            }
+
+            .fab-btn {
+                right: 18px;
+                bottom: 18px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -46,20 +197,24 @@
                 <p class="hero-desc" id="taskSummary">加载中...</p>
                 <div class="hero-meta">
                     <div class="metric-pill">
-                        <span class="metric-label">当前排序</span>
-                        <span class="metric-value" id="currentSortText">最新</span>
+                        <span class="metric-label">最急着处理</span>
+                        <span class="metric-value" id="taskStatusText">同步中</span>
+                        <div class="insight-copy" id="overdueCopy" style="font-size:0.82rem;margin-top:8px">正在分析逾期与临近截止的任务。</div>
+                        <div class="insight-list" id="overdueList" style="margin-top:10px"></div>
                     </div>
                     <div class="metric-pill">
-                        <span class="metric-label">任务状态</span>
-                        <span class="metric-value" id="taskStatusText">同步中</span>
+                        <span class="metric-label">需要补记录</span>
+                        <span class="metric-value" id="stalledTaskText">同步中</span>
+                        <div class="insight-copy" id="stalledCopy" style="font-size:0.82rem;margin-top:8px">正在查找久未更新或长期停滞的任务。</div>
+                        <div class="insight-list" id="stalledList" style="margin-top:10px"></div>
                     </div>
                 </div>
             </div>
             <div class="hero-side">
                 <div>
-                    <div class="hero-eyebrow"><i class="material-icons" style="font-size:16px;color:var(--primary)">view_in_ar</i>概览</div>
+                    <div class="hero-eyebrow"><i class="material-icons" style="font-size:16px;color:var(--primary)">view_in_ar</i>下一步</div>
                     <div class="stat-number" id="taskCountHero">0</div>
-                    <div class="stat-caption">把任务、进度和每日记录集中在一个清晰的列表里。</div>
+                    <div class="stat-caption" id="heroSideCaption">正在整理最值得先处理的任务。</div>
                 </div>
                 <a href="/pages/myday.html" class="btn btn-outline waves-effect">打开我的一天</a>
             </div>
@@ -114,7 +269,7 @@
             </div>
             <div class="col s12 m6">
                 <div class="input-field">
-                    <input type="datetime-local" id="newDdl">
+                    <input type="text" id="newDdl" placeholder="点击选择日期时间">
                     <label for="newDdl" class="active">DDL</label>
                 </div>
             </div>
@@ -133,6 +288,10 @@
 
 <div id="snackbar"></div>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/assets/js/app.js"></script>
 <script>
@@ -160,29 +319,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.querySelectorAll('.sort-tab').forEach((item) => item.classList.remove('active'));
             tab.classList.add('active');
             currentSort = tab.dataset.sort;
-            document.getElementById('currentSortText').textContent = sortLabel(currentSort);
             loadTasks(currentSort);
         });
     });
 
-    document.getElementById('fabBtn').addEventListener('click', () => {
-        M.Modal.getInstance(document.getElementById('createModal')).open();
+    document.getElementById('fabBtn').addEventListener('click', async () => {
+        const modalEl = document.getElementById('createModal');
+        let modal = M.Modal.getInstance(modalEl);
+        modal.open();
+        
+        setTimeout(() => {
+            const input = document.getElementById('newDdl');
+            if (input && !input._flatpickr) {
+                flatpickr("#newDdl", {
+                    enableTime: true,
+                    dateFormat: "Y-m-d H:i",
+                    locale: "zh",
+                    placeholder: "点击选择日期时间",
+                    time_24hr: true
+                });
+            }
+        }, 300);
     });
 
     document.getElementById('createSubmitBtn').addEventListener('click', createTask);
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
     document.getElementById('logoutBtnMobile')?.addEventListener('click', logout);
 });
-
-function sortLabel(sort) {
-    const map = {
-        created_at: '最新',
-        category: '类别',
-        ddl: 'DDL',
-        progress: '进度'
-    };
-    return map[sort] || '最新';
-}
 
 async function loadTasks(sort = 'created_at') {
     try {
@@ -192,11 +355,7 @@ async function loadTasks(sort = 'created_at') {
 
         const total = allTasks.length;
         const completed = allTasks.filter((task) => task.is_completed == 1).length;
-        document.getElementById('taskSummary').textContent = total === 0
-            ? '还没有任务，点右下角开始创建。'
-            : `共 ${total} 个任务，已完成 ${completed} 个。`;
-        document.getElementById('taskCountHero').textContent = String(total);
-        document.getElementById('taskStatusText').textContent = completed === total && total > 0 ? '全部完成' : '进行中';
+        updateDashboardInsights(allTasks, total, completed);
     } catch (e) {
         document.getElementById('taskList').innerHTML = `
             <div class="error-state empty-state">
@@ -279,6 +438,151 @@ function renderTaskCard(task) {
                 </div>
             </div>
         </article>`;
+}
+
+function updateDashboardInsights(tasks, total, completed) {
+    const now = new Date();
+    const activeTasks = tasks.filter((task) => task.is_completed != 1);
+    const overdueTasks = activeTasks
+        .filter((task) => task.ddl && new Date(task.ddl) < now)
+        .sort((a, b) => new Date(a.ddl) - new Date(b.ddl));
+    const todayEnd = new Date(now);
+    todayEnd.setHours(23, 59, 59, 999);
+    const soonTasks = activeTasks
+        .filter((task) => task.ddl && new Date(task.ddl) >= now && new Date(task.ddl) <= todayEnd)
+        .sort((a, b) => new Date(a.ddl) - new Date(b.ddl));
+    const nearTasks = activeTasks
+        .filter((task) => task.ddl && new Date(task.ddl) > todayEnd)
+        .sort((a, b) => new Date(a.ddl) - new Date(b.ddl));
+    const lowProgressTasks = activeTasks
+        .filter((task) => (parseInt(task.progress, 10) || 0) < 50)
+        .sort((a, b) => {
+            const aDdl = a.ddl ? new Date(a.ddl).getTime() : Number.MAX_SAFE_INTEGER;
+            const bDdl = b.ddl ? new Date(b.ddl).getTime() : Number.MAX_SAFE_INTEGER;
+            return aDdl - bDdl;
+        });
+    const stalledTasks = activeTasks
+        .filter((task) => !task.last_commit_at || daysBetween(task.last_commit_at, now) >= 3)
+        .sort((a, b) => {
+            const aDays = taskIdleDays(a, now);
+            const bDays = taskIdleDays(b, now);
+            return bDays - aDays;
+        });
+
+    const overdueAndSoonCount = overdueTasks.length + soonTasks.length;
+    const focusTasks = (soonTasks.length ? soonTasks : lowProgressTasks).slice(0, 3);
+    const heroTask = overdueTasks[0] || soonTasks[0] || nearTasks[0] || stalledTasks[0] || null;
+
+    document.getElementById('taskSummary').textContent = buildSummary(total, completed, overdueTasks.length, soonTasks.length, stalledTasks.length);
+    document.getElementById('taskCountHero').textContent = heroTask ? heroTaskLabel(heroTask) : String(total);
+    document.getElementById('heroSideCaption').textContent = heroTask
+        ? buildHeroCaption(heroTask, now)
+        : '还没有明确优先级，先创建一个任务开始推进。';
+    document.getElementById('taskStatusText').textContent = overdueAndSoonCount ? `${overdueAndSoonCount} 个` : '0 个';
+    document.getElementById('stalledTaskText').textContent = stalledTasks.length ? `${stalledTasks.length} 个` : '0 个';
+
+    document.getElementById('overdueCopy').textContent = overdueTasks.length
+        ? '先把已经超时的任务收口，避免列表继续失真。'
+        : soonTasks.length
+            ? `今天还有 ${soonTasks.length} 个任务会到点，建议尽快处理。`
+            : '当前没有逾期任务，节奏还算稳。';
+    renderInsightList('overdueList', overdueTasks.slice(0, 3), (task) => {
+        const overdueDays = Math.max(1, Math.floor((now - new Date(task.ddl)) / 86400000));
+        return { label: overdueDays > 0 ? `逾期 ${overdueDays} 天` : '已逾期', tone: 'danger' };
+    }, '没有逾期任务');
+
+    document.getElementById('stalledCopy').textContent = stalledTasks.length
+        ? '这些任务缺少最近记录，先补状态，再决定要不要继续推进。'
+        : focusTasks.length
+            ? '如果没有需要补记录的任务，可以从这些可推进任务开始。'
+            : '最近都有更新记录，不需要额外补日志。';
+    renderInsightList('stalledList', (stalledTasks.length ? stalledTasks : focusTasks).slice(0, 3), (task) => {
+        if (stalledTasks.length) {
+            const idleDays = taskIdleDays(task, now);
+            return { label: idleDays > 0 ? `${idleDays} 天未更新` : '待补记录', tone: idleDays >= 7 ? 'danger' : 'default' };
+        }
+        if (task.ddl) {
+            return { label: deadlineLabel(task.ddl, now), tone: isToday(task.ddl, now) ? 'warning' : 'default' };
+        }
+        const progress = parseInt(task.progress, 10) || 0;
+        return { label: `进度 ${progress}%`, tone: progress === 0 ? 'warning' : 'default' };
+    }, '暂无需要补记录的任务');
+}
+
+function buildSummary(total, completed, overdueCount, todayCount, stalledCount) {
+    if (total === 0) return '还没有任务，点右下角开始创建。';
+    const active = total - completed;
+    const parts = [`共 ${total} 个任务`, `${active} 个在推进`, `${completed} 个已完成`];
+    if (overdueCount) parts.push(`${overdueCount} 个已逾期`);
+    else if (todayCount) parts.push(`${todayCount} 个今天到期`);
+    if (stalledCount) parts.push(`${stalledCount} 个缺少最近记录`);
+    return parts.join('，') + '。';
+}
+
+function buildHeroCaption(task, now) {
+    if (task.ddl && new Date(task.ddl) < now) {
+        return `优先处理「${task.title}」，已经逾期，先决定继续推进还是调整截止时间。`;
+    }
+    if (task.ddl) {
+        return `下一项关键节点是「${task.title}」，截止时间 ${formatDatetime(task.ddl)}。`;
+    }
+    return `「${task.title}」最近缺少进展记录，建议先补一条当前状态。`;
+}
+
+function heroTaskLabel(task) {
+    if (task.ddl) return formatDate(task.ddl).slice(5).replace('/', '.');
+    const progress = parseInt(task.progress, 10) || 0;
+    return `${progress}%`;
+}
+
+function renderInsightList(containerId, tasks, getState, emptyText) {
+    const container = document.getElementById(containerId);
+    if (!tasks.length) {
+        container.innerHTML = `<div style="font-size:0.8rem;color:var(--text-muted)">${emptyText}</div>`;
+        return;
+    }
+
+    container.innerHTML = tasks.map((task) => {
+        const state = getState(task);
+        const subline = task.ddl ? `DDL ${formatDatetime(task.ddl)}` : `进度 ${parseInt(task.progress, 10) || 0}%`;
+        return `
+            <div class="task-last-commit" data-id="${task.id}" style="cursor:pointer;margin-top:0;padding:10px 12px">
+                <div>
+                    <strong>${escHtml(task.title)}</strong>
+                    <span>${escHtml(subline)}</span>
+                </div>
+                <div style="margin-top:4px;font-size:0.78rem;color:${state.tone === 'danger' ? 'var(--danger)' : state.tone === 'warning' ? 'var(--warning)' : 'var(--primary)'}">${escHtml(state.label)}</div>
+            </div>`;
+    }).join('');
+
+    container.querySelectorAll('[data-id]').forEach((item) => {
+        item.addEventListener('click', () => {
+            window.location.href = `/pages/task-detail.html?id=${item.dataset.id}`;
+        });
+    });
+}
+
+function deadlineLabel(ddl, now) {
+    if (isToday(ddl, now)) return '今天到期';
+    const diff = new Date(ddl) - now;
+    const days = Math.ceil(diff / 86400000);
+    return days <= 1 ? '明天到期' : `${days} 天后到期`;
+}
+
+function isToday(dateStr, now = new Date()) {
+    const date = new Date(dateStr);
+    return date.getFullYear() === now.getFullYear()
+        && date.getMonth() === now.getMonth()
+        && date.getDate() === now.getDate();
+}
+
+function daysBetween(dateStr, now = new Date()) {
+    return Math.floor((now - new Date(dateStr)) / 86400000);
+}
+
+function taskIdleDays(task, now = new Date()) {
+    const anchor = task.last_commit_at || task.created_at;
+    return anchor ? Math.max(0, daysBetween(anchor, now)) : 0;
 }
 
 async function loadCategories() {
