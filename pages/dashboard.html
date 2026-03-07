@@ -17,6 +17,21 @@
             box-shadow: none !important;
         }
 
+        .page-toolbar-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .guide-open-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
         @media (max-width: 900px) {
             .hero {
                 grid-template-columns: 1fr;
@@ -139,6 +154,11 @@
                 margin-bottom: 10px;
             }
 
+            .page-toolbar-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
             .section-subtitle {
                 font-size: 0.8rem;
             }
@@ -165,6 +185,11 @@
             .fab-btn {
                 right: 18px;
                 bottom: 18px;
+            }
+
+            .guide-open-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -226,11 +251,16 @@
                     <h2 class="section-title">任务列表</h2>
                     <p class="section-subtitle">保留最重要的信息，只显示真正需要看的内容。</p>
                 </div>
-                <div class="segmented">
-                    <div class="sort-tab active" data-sort="created_at"><i class="material-icons">schedule</i>最新</div>
-                    <div class="sort-tab" data-sort="category"><i class="material-icons">folder</i>类别</div>
-                    <div class="sort-tab" data-sort="ddl"><i class="material-icons">event</i>DDL</div>
-                    <div class="sort-tab" data-sort="progress"><i class="material-icons">trending_up</i>进度</div>
+                <div class="page-toolbar-actions">
+                    <a href="/pages/onboarding.html" class="btn btn-outline waves-effect guide-open-btn" id="openGuideBtn">
+                        <i class="material-icons" style="font-size:16px">menu_book</i>新手指引
+                    </a>
+                    <div class="segmented">
+                        <div class="sort-tab active" data-sort="created_at"><i class="material-icons">schedule</i>最新</div>
+                        <div class="sort-tab" data-sort="category"><i class="material-icons">folder</i>类别</div>
+                        <div class="sort-tab" data-sort="ddl"><i class="material-icons">event</i>DDL</div>
+                        <div class="sort-tab" data-sort="progress"><i class="material-icons">trending_up</i>进度</div>
+                    </div>
                 </div>
             </div>
             <div class="task-grid" id="taskList">
@@ -297,6 +327,8 @@
 <script>
 let currentSort = 'created_at';
 let allTasks = [];
+let currentUsername = '';
+const GUIDE_STORAGE_PREFIX = 'taskm_dashboard_guide_seen_';
 
 document.addEventListener('DOMContentLoaded', async () => {
     M.AutoInit();
@@ -315,6 +347,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const { user } = await auth.json();
+    currentUsername = user.username || '';
+    if (shouldRedirectToGuide()) {
+        window.location.href = '/pages/onboarding.html';
+        return;
+    }
     document.getElementById('navUsername').textContent = user.username;
     document.getElementById('greetName').textContent = user.username;
 
@@ -330,29 +367,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    document.getElementById('fabBtn').addEventListener('click', async () => {
-        const modalEl = document.getElementById('createModal');
-        let modal = M.Modal.getInstance(modalEl);
-        modal.open();
-        
-        setTimeout(() => {
-            const input = document.getElementById('newDdl');
-            if (input && !input._flatpickr) {
-                flatpickr("#newDdl", {
-                    enableTime: true,
-                    dateFormat: "Y-m-d H:i",
-                    locale: "zh",
-                    placeholder: "点击选择日期时间",
-                    time_24hr: true
-                });
-            }
-        }, 300);
-    });
+    document.getElementById('fabBtn').addEventListener('click', openCreateModal);
 
     document.getElementById('createSubmitBtn').addEventListener('click', createTask);
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
     document.getElementById('logoutBtnMobile')?.addEventListener('click', logout);
 });
+
+function getGuideStorageKey() {
+    return `${GUIDE_STORAGE_PREFIX}${currentUsername || 'guest'}`;
+}
+
+function shouldRedirectToGuide() {
+    if (!currentUsername) return false;
+    return !localStorage.getItem(getGuideStorageKey());
+}
+
+function openCreateModal() {
+    const modalEl = document.getElementById('createModal');
+    let modal = M.Modal.getInstance(modalEl);
+    if (!modal) {
+        modal = M.Modal.init(modalEl);
+    }
+    modal.open();
+
+    setTimeout(() => {
+        const input = document.getElementById('newDdl');
+        if (input && !input._flatpickr) {
+            flatpickr('#newDdl', {
+                enableTime: true,
+                dateFormat: 'Y-m-d H:i',
+                locale: 'zh',
+                placeholder: '点击选择日期时间',
+                time_24hr: true
+            });
+        }
+    }, 300);
+}
 
 async function loadTasks(sort = 'created_at') {
     try {

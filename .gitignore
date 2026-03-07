@@ -23,6 +23,9 @@ config/captcha.php
 .env
 .env.local
 
+# 演示图片
+assets/pic/
+
 # 项目特定配置
 .user.ini
 AGENTS.md

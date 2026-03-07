@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新手指引 — TaskM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="/assets/css/app.css?v=5">
+    <style>
+        body {
+            min-height: 100vh;
+        }
+
+        .onboarding-page {
+            min-height: 100vh;
+            padding: 26px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .onboarding-shell {
+            width: min(1120px, calc(100vw - 32px));
+            margin: 0 auto;
+        }
+
+        .onboarding-card {
+            position: relative;
+            overflow: hidden;
+            padding: 28px;
+            border-radius: 34px;
+            background: rgba(255, 251, 246, 0.84);
+            border: 1px solid rgba(255, 255, 255, 0.56);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(18px);
+        }
+
+        .onboarding-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(233, 176, 131, 0.24), transparent 28%),
+                radial-gradient(circle at bottom left, rgba(255, 233, 208, 0.7), transparent 28%);
+            pointer-events: none;
+        }
+
+        .onboarding-topbar,
+        .onboarding-footer,
+        .onboarding-stage {
+            position: relative;
+            z-index: 1;
+        }
+
+        .onboarding-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .onboarding-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            letter-spacing: -0.03em;
+        }
+
+        .brand-task {
+            color: var(--text);
+        }
+
+        .brand-m {
+            color: var(--primary);
+        }
+
+        .onboarding-progress {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+
+        .onboarding-progress-bar {
+            width: 140px;
+            height: 8px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(98, 77, 61, 0.1);
+        }
+
+        .onboarding-progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #e2a06f 0%, var(--primary) 55%, var(--primary-dk) 100%);
+            transition: width 0.28s ease;
+        }
+
+        .onboarding-stage {
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+            gap: 24px;
+            align-items: center;
+            min-height: 560px;
+        }
+
+        .onboarding-stage.image-stage {
+            grid-template-columns: minmax(0, 0.94fr) minmax(340px, 1.06fr);
+        }
+
+        .onboarding-stage.single-column {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .onboarding-copy {
+            max-width: 560px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: left;
+        }
+
+        .onboarding-title {
+            margin: 0 0 14px;
+            font-size: clamp(2.2rem, 5vw, 4rem);
+            line-height: 1.08;
+            font-weight: 900;
+            letter-spacing: -0.06em;
+        }
+
+        .onboarding-stage.stage-animating .onboarding-copy,
+        .onboarding-stage.stage-animating .onboarding-panel {
+            animation: stageFadeUp 0.42s ease;
+        }
+
+        @keyframes stageFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .onboarding-desc {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.9;
+            white-space: pre-line;
+        }
+
+        .onboarding-note {
+            margin-top: 18px;
+            padding: 0;
+            color: var(--text-muted);
+            line-height: 1.75;
+        }
+
+        .onboarding-panel {
+            min-height: 430px;
+            padding: 18px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(98, 77, 61, 0.1);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .onboarding-panel.image-mode {
+            padding: 0;
+            min-height: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            display: block;
+        }
+
+        .onboarding-panel.text-mode {
+            min-height: 430px;
+            padding: 18px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(98, 77, 61, 0.1);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visual-frame {
+            position: relative;
+            width: 100%;
+            min-height: 390px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(238, 230, 220, 0.95), rgba(226, 214, 201, 0.82));
+            box-shadow:
+                inset 20px 20px 34px rgba(151, 127, 108, 0.22),
+                inset -18px -18px 28px rgba(255, 255, 255, 0.76);
+        }
+
+        .visual-frame.image-frame {
+            background: transparent;
+            box-shadow: none;
+            min-height: 0;
+        }
+
+        .image-visual {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(238, 230, 220, 0.95), rgba(226, 214, 201, 0.82));
+            box-shadow:
+                inset 18px 0 28px rgba(151, 127, 108, 0.18),
+                inset -18px 0 28px rgba(255, 255, 255, 0.68);
+        }
+
+        .image-visual img {
+            position: relative;
+            width: 100%;
+            height: auto;
+            display: block;
+            vertical-align: top;
+            opacity: 0;
+            transform: none;
+            transition: opacity 0.45s ease;
+            background: transparent;
+        }
+
+        .image-fallback {
+            position: absolute;
+            inset: 0;
+            padding: 22px 20px;
+            display: grid;
+            align-content: center;
+            gap: 12px;
+            background: linear-gradient(180deg, rgba(252, 247, 241, 0.94), rgba(240, 230, 219, 0.88));
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .image-fallback h3 {
+            margin: 0;
+            font-size: 1.18rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .image-fallback p {
+            margin: 0;
+            color: var(--text-muted);
+            line-height: 1.75;
+        }
+
+        .image-fallback ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text);
+        }
+
+        .image-fallback li + li {
+            margin-top: 8px;
+        }
+
+        .visual-caption {
+            position: absolute;
+            left: 28px;
+            right: 28px;
+            bottom: 24px;
+            padding: 0;
+            color: var(--text-muted);
+            line-height: 1.65;
+            font-size: 0.9rem;
+            text-shadow: 0 2px 12px rgba(255, 251, 246, 0.92);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .image-visual.loaded img {
+            opacity: 1;
+        }
+
+        .image-visual.loaded .image-fallback {
+            opacity: 0;
+            transform: translateY(-8px);
+            pointer-events: none;
+        }
+
+        .image-visual.loaded .visual-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .panel-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            color: var(--primary);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+        }
+
+        .panel-title {
+            margin: 0;
+            margin: 0 0 14px;
+            font-size: 1.18rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .panel-stack {
+            width: 100%;
+            display: grid;
+            gap: 10px;
+        }
+
+        .panel-item {
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(247, 239, 229, 0.72);
+            border: 1px solid rgba(98, 77, 61, 0.08);
+        }
+
+        .panel-item strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .panel-item span {
+            display: block;
+            color: var(--text-muted);
+            line-height: 1.65;
+            font-size: 0.9rem;
+        }
+
+        .confetti-frame {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .confetti-center {
+            position: relative;
+            z-index: 1;
+            width: min(280px, 100%);
+            padding: 28px 20px;
+            border-radius: 24px;
+            background: rgba(255, 251, 246, 0.84);
+            border: 1px solid rgba(98, 77, 61, 0.1);
+            box-shadow: 0 14px 30px rgba(40, 27, 18, 0.08);
+        }
+
+        .confetti-badge {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(110, 157, 88, 0.14);
+            color: var(--success);
+        }
+
+        .confetti-center h3 {
+            margin: 0 0 8px;
+            font-size: 1.18rem;
+            font-weight: 800;
+        }
+
+        .confetti-center p {
+            margin: 0;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 12px;
+            height: 24px;
+            border-radius: 999px;
+            opacity: 0.88;
+            animation: confettiFloat 3.4s ease-in-out infinite;
+        }
+
+        @keyframes confettiFloat {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(10px) rotate(24deg);
+            }
+        }
+
+        .onboarding-footer {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .onboarding-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .onboarding-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(98, 77, 61, 0.16);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .onboarding-dot.active {
+            transform: scale(1.25);
+            background: var(--primary);
+        }
+
+        .onboarding-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-wide {
+            min-width: 126px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
+            .onboarding-stage {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .onboarding-stage.image-stage {
+                grid-template-columns: 1fr;
+            }
+
+            .onboarding-copy {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .onboarding-page {
+                padding: 14px 0;
+            }
+
+            .onboarding-shell {
+                width: calc(100vw - 20px);
+            }
+
+            .onboarding-card {
+                padding: 18px 16px;
+                border-radius: 26px;
+            }
+
+            .onboarding-topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: 20px;
+            }
+
+            .onboarding-progress {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .onboarding-progress-bar {
+                flex: 1;
+                width: auto;
+            }
+
+            .onboarding-title {
+                font-size: 2rem;
+            }
+
+            .onboarding-panel {
+                padding: 16px;
+                border-radius: 20px;
+                min-height: 320px;
+            }
+
+            .visual-frame {
+                min-height: 286px;
+                border-radius: 18px;
+            }
+
+            .image-visual {
+                border-radius: 18px;
+            }
+
+            .image-fallback {
+                padding: 16px 14px;
+            }
+
+            .visual-caption {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                border-radius: 14px;
+                font-size: 0.84rem;
+            }
+
+            .onboarding-footer {
+                align-items: stretch;
+            }
+
+            .onboarding-actions {
+                width: 100%;
+            }
+
+            .onboarding-actions .btn {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="onboarding-page">
+    <div class="onboarding-shell">
+        <section class="onboarding-card">
+            <div class="onboarding-topbar">
+                <div class="onboarding-brand"><span class="brand-task">Task</span><span class="brand-m">M</span></div>
+                <div class="onboarding-progress">
+                    <span id="progressText">第 1 页 / 6 页</span>
+                    <div class="onboarding-progress-bar">
+                        <div class="onboarding-progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="onboarding-stage">
+                <div class="onboarding-copy">
+                    <h1 class="onboarding-title" id="pageTitle">欢迎来到 <span class="brand-task">Task</span><span class="brand-m">M</span>！<br>先点做准备吧</h1>
+                    <p class="onboarding-desc" id="pageDesc"></p>
+                    <div class="onboarding-note" id="pageNote"></div>
+                </div>
+                <aside class="onboarding-panel" id="onboardingPanel"></aside>
+            </div>
+
+            <div class="onboarding-footer">
+                <div class="onboarding-dots" id="pageDots"></div>
+                <div class="onboarding-actions">
+                    <button class="btn btn-outline waves-effect btn-wide" id="prevBtn">上一页</button>
+                    <button class="btn btn-primary waves-effect btn-wide" id="nextBtn">下一页</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<div id="snackbar"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="/assets/js/app.js"></script>
+<script>
+let currentStep = 0;
+let currentUsername = '';
+const GUIDE_STORAGE_PREFIX = 'taskm_dashboard_guide_seen_';
+const steps = [
+    {
+        title: '欢迎来到 TaskM！\n先点做准备吧',
+        desc: 'TaskM 不是一张越用越乱的长清单。\n它更像一个用来理顺优先级、推进任务、保留记录的工作台。',
+        note: '先看几页简短说明，再开始使用。',
+        visual: {
+            type: 'image',
+            src: '/assets/pic/login.jpg',
+            alt: 'TaskM 登录页面',
+            caption: '先进入账号，再开始后面的任务整理和推进。'
+        }
+    },
+    {
+        title: '我们不是催命的清单',
+        desc: '很多任务工具的问题不是功能不够，而是信息太满。\nTaskM 会把真正需要关注的任务留在前面，把已经完成的内容折叠起来。',
+        note: '重点一直只有一个：少一点干扰，多一点推进。',
+        visual: {
+            type: 'text',
+            kicker: '设计理念',
+            title: '列表应该服务判断',
+            items: [
+                { title: '少翻找', desc: '进行中的任务留在上面，已完成任务统一收到底部。' },
+                { title: '少干扰', desc: '真正需要看的信息直接放在眼前，不让列表越滚越长。' },
+                { title: '少犹豫', desc: '看一眼就知道哪些任务该先处理。' }
+            ]
+        }
+    },
+    {
+        title: '先看主页，',
+        desc: '主页是总览区。\n这里会看到任务列表、分类、DDL、进度和最近记录。\n\n决定先做什么之后，再进入按天处理页逐个推进。',
+        note: '主页负责看清全局和顺序。',
+        visual: {
+            type: 'image',
+            src: '/assets/pic/dashboard.jpg',
+            alt: 'TaskM 主页',
+            caption: '主页先负责看清：现在有哪些任务、谁更急、谁该先做。',
+            fallbackTitle: '主页会展示什么',
+            fallbackText: '图片加载完成前，先用文字看一眼核心信息。',
+            fallbackItems: [
+                '任务列表、分类、DDL 和最近记录。',
+                '优先级和当前最值得先处理的事情。'
+            ]
+        }
+    },
+    {
+        title: '「我的一天」',
+        desc: '「我的一天」是执行页。\n页面会一张一张带出待处理任务，每次只需要关注当前这一项。\n\n这里可以直接记录今天没做、今天跟进，或者今天完成。',
+        note: '按天处理页负责把动作真正落下来。',
+        visual: {
+            type: 'image',
+            src: '/assets/pic/myday.jpg',
+            alt: 'TaskM 我的一天页面',
+            caption: '一次只处理一个任务，提交后自然进入下一项。',
+            fallbackTitle: '这个页面会做什么',
+            fallbackText: '图片加载完成前，先看这个页面的核心节奏。',
+            fallbackItems: [
+                '每次只专注当前这一个任务。',
+                '直接记录没做、跟进或完成。'
+            ]
+        }
+    },
+    {
+        title: '真正常用的功能，其实就这几件事',
+        desc: '最常用的动作其实不多：创建任务、提交跟进、标记完成。\n当进度到 100% 时，任务会自动进入已完成折叠区。',
+        note: '如果后面还要继续，也可以重新返回未完成状态。',
+        visual: {
+            type: 'text',
+            kicker: '常用功能',
+            title: '只需要记住这三件事',
+            items: [
+                { title: '新建任务', desc: '把标题、背景、类别和 DDL 放清楚。' },
+                { title: '提交跟进', desc: '把今天的推进和进度记录下来。' },
+                { title: '完成归档', desc: '任务完成后自动折叠到底部，列表更干净。' }
+            ]
+        }
+    },
+    {
+        title: '轰！擦擦！\n你已学会如何使用 TaskM！开始吧！',
+        desc: '现在已经知道 TaskM 的用法了：\n先在主页看清全局，再进入按天处理页逐个推进，让每一次行动都留下记录。',
+        note: '点下面的按钮回到主页，开始建立你的第一批任务。',
+        visual: {
+            type: 'text',
+            kicker: '快速上手',
+            title: '回到主页后先做这三步',
+            items: [
+                { title: '先建任务', desc: '把标题、背景、类别和 DDL 先补清楚。' },
+                { title: '再看顺序', desc: '先从主页确认今天最该推进的那一项。' },
+                { title: '开始记录', desc: '进入「我的一天」，把没做、跟进或完成记下来。' }
+            ]
+        }
+    }
+];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    M.AutoInit();
+    const auth = await fetch('/api/auth/check.php');
+    if (!auth.ok) {
+        window.location.href = '/pages/login.html';
+        return;
+    }
+
+    const { user } = await auth.json();
+    currentUsername = user.username || '';
+
+    document.getElementById('prevBtn').addEventListener('click', handlePrev);
+    document.getElementById('nextBtn').addEventListener('click', handleNext);
+
+    renderStep();
+});
+
+function getGuideStorageKey() {
+    return `${GUIDE_STORAGE_PREFIX}${currentUsername || 'guest'}`;
+}
+
+function renderStep() {
+    const stageEl = document.querySelector('.onboarding-stage');
+    const step = steps[currentStep];
+    const total = steps.length;
+    const isLast = currentStep === total - 1;
+
+    document.getElementById('progressText').textContent = `第 ${currentStep + 1} 页 / ${total} 页`;
+    document.getElementById('progressFill').style.width = `${((currentStep + 1) / total) * 100}%`;
+    document.getElementById('pageTitle').innerHTML = renderRichText(step.title, true);
+    document.getElementById('pageDesc').innerHTML = renderRichText(step.desc, true);
+    const noteEl = document.getElementById('pageNote');
+    noteEl.innerHTML = renderRichText(step.note || '', true);
+    noteEl.style.display = step.note ? 'block' : 'none';
+    const panelEl = document.getElementById('onboardingPanel');
+    const hasVisual = step.visual && step.visual.type !== 'none';
+    stageEl.classList.toggle('single-column', !hasVisual);
+    stageEl.classList.toggle('image-stage', step.visual && step.visual.type === 'image');
+    panelEl.style.display = hasVisual ? 'flex' : 'none';
+    panelEl.classList.toggle('image-mode', step.visual && step.visual.type === 'image');
+    panelEl.classList.toggle('text-mode', step.visual && step.visual.type === 'text');
+    panelEl.innerHTML = hasVisual ? renderVisual(step.visual) : '';
+    if (hasVisual) {
+        setupImageVisuals();
+    }
+
+    document.getElementById('prevBtn').disabled = currentStep === 0;
+    document.getElementById('nextBtn').textContent = isLast ? '开始吧' : '下一页';
+    renderDots(total);
+
+    if (stageEl) {
+        stageEl.classList.remove('stage-animating');
+        void stageEl.offsetWidth;
+        stageEl.classList.add('stage-animating');
+    }
+}
+
+function renderDots(total) {
+    const dotsEl = document.getElementById('pageDots');
+    dotsEl.innerHTML = Array.from({ length: total }, (_, index) => (
+        `<span class="onboarding-dot ${index === currentStep ? 'active' : ''}"></span>`
+    )).join('');
+}
+
+function renderVisual(visual) {
+    if (!visual) return '';
+
+    if (visual.type === 'image') {
+        return `
+            <div class="visual-frame image-frame">
+                <div class="image-visual loading" data-image-src="${escAttr(visual.src)}">
+                    <div class="image-fallback">
+                        <h3>${renderRichText(visual.fallbackTitle || '', false)}</h3>
+                        <p>${renderRichText(visual.fallbackText || '', true)}</p>
+                        <ul>
+                            ${(visual.fallbackItems || []).map((item) => `<li>${escHtml(item)}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <img src="${escAttr(visual.src)}" alt="${escAttr(visual.alt || '')}">
+                    <div class="visual-caption">${renderRichText(visual.caption || '', true)}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    if (visual.type === 'confetti') {
+        return `
+            <div class="visual-frame confetti-frame">
+                ${renderConfettiPieces()}
+                <div class="confetti-center">
+                    <div class="confetti-badge"><i class="material-icons" style="font-size:34px">celebration</i></div>
+                    <h3>准备完成</h3>
+                    <p>回到主页后，就可以开始真正建立任务和推进记录了。</p>
+                </div>
+            </div>
+        `;
+    }
+
+    if (visual.type === 'none') {
+        return '';
+    }
+
+    if (visual.type === 'text') {
+        return `
+            <div>
+                <div class="panel-kicker"><i class="material-icons" style="font-size:15px">menu_book</i>${renderRichText(visual.kicker || '', false)}</div>
+                <h3 class="panel-title">${renderRichText(visual.title || '', false)}</h3>
+                <div class="panel-stack">
+                    ${(visual.items || []).map((item) => `
+                        <div class="panel-item">
+                            <strong>${renderRichText(item.title || '', false)}</strong>
+                            <span>${renderRichText(item.desc || '', true)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="visual-frame">
+            <div></div>
+        </div>
+    `;
+}
+
+function renderConfettiPieces() {
+    const colors = ['#c96a3b', '#e2a06f', '#6e9d58', '#d58b3d', '#cb5a4a'];
+    const pieces = [
+        { left: '10%', top: '12%', rotate: '-16deg', delay: '0s' },
+        { left: '22%', top: '22%', rotate: '18deg', delay: '0.4s' },
+        { left: '78%', top: '14%', rotate: '12deg', delay: '0.7s' },
+        { left: '86%', top: '28%', rotate: '-12deg', delay: '0.2s' },
+        { left: '14%', top: '76%', rotate: '14deg', delay: '1s' },
+        { left: '28%', top: '86%', rotate: '-10deg', delay: '0.6s' },
+        { left: '72%', top: '80%', rotate: '20deg', delay: '1.2s' },
+        { left: '84%', top: '68%', rotate: '-18deg', delay: '0.9s' }
+    ];
+
+    return pieces.map((piece, index) => `
+        <span class="confetti-piece" style="left:${piece.left};top:${piece.top};transform:rotate(${piece.rotate});animation-delay:${piece.delay};background:${colors[index % colors.length]}"></span>
+    `).join('');
+}
+
+function handlePrev() {
+    if (currentStep === 0) return;
+    currentStep -= 1;
+    renderStep();
+}
+
+function handleNext() {
+    if (currentStep < steps.length - 1) {
+        currentStep += 1;
+        renderStep();
+        return;
+    }
+
+    localStorage.setItem(getGuideStorageKey(), '1');
+    window.location.href = '/pages/dashboard.html';
+}
+
+function setupImageVisuals() {
+    document.querySelectorAll('.image-visual[data-image-src]').forEach((visual) => {
+        const img = visual.querySelector('img');
+        if (!img) return;
+
+        img.addEventListener('load', () => {
+            visual.classList.add('loaded');
+        }, { once: true });
+
+        if (img.complete && img.naturalWidth > 0) {
+            visual.classList.add('loaded');
+        }
+    });
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function escAttr(str) {
+    return escHtml(str).replace(/'/g, '&#39;');
+}
+
+function renderRichText(str, allowLineBreaks = false) {
+    const escaped = escHtml(str || '');
+    const withBrand = escaped.replace(/TaskM/g, '<span class="brand-task">Task</span><span class="brand-m">M</span>');
+    return allowLineBreaks ? withBrand.replace(/\n/g, '<br>') : withBrand;
+}
+</script>
+</body>
+</html>
