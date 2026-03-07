@@ -8,138 +8,52 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link rel="stylesheet" href="/assets/css/app.css">
-    <style>
-        .login-wrapper {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: var(--bg);
-        }
-        .login-card {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: var(--shadow-lg);
-            padding: 40px 40px 36px;
-            width: 100%;
-            max-width: 400px;
-        }
-        .login-logo {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--primary);
-            letter-spacing: 2px;
-            margin-bottom: 6px;
-            text-align: center;
-        }
-        .login-sub {
-            font-size: .88rem;
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .login-card .input-field {
-            margin-bottom: 18px;
-        }
-        .login-card .input-field input {
-            border-bottom: 2px solid var(--border);
-            box-shadow: none;
-        }
-        .login-card .input-field input:focus {
-            border-bottom: 2px solid var(--primary);
-            box-shadow: 0 1px 0 0 var(--primary);
-        }
-        .login-card .input-field label {
-            color: var(--text-muted);
-        }
-        .login-card .input-field input:focus + label,
-        .login-card .input-field input.valid + label {
-            color: var(--primary);
-        }
-        .login-card .prefix {
-            color: var(--primary);
-        }
-        .login-error {
-            color: var(--danger);
-            font-size: .85rem;
-            margin-bottom: 16px;
-            display: none;
-        }
-        .login-btn {
-            width: 100%;
-            background: var(--primary);
-            border-radius: 8px;
-            text-transform: none;
-            font-weight: 700;
-            letter-spacing: .5px;
-            padding: 12px;
-            height: auto;
-            line-height: normal;
-            margin-top: 8px;
-        }
-        .login-btn:hover {
-            background: var(--primary-dk);
-        }
-        .login-btn:disabled {
-            opacity: .7;
-        }
-        .login-footer {
-            text-align: center;
-            margin-top: 22px;
-            font-size: .9rem;
-            color: var(--text-muted);
-        }
-        .login-footer a {
-            color: var(--primary);
-            font-weight: 700;
-        }
-        @media (max-width: 480px) {
-            .login-card { padding: 32px 24px 24px; }
-        }
-    </style>
+    <link rel="stylesheet" href="/assets/css/app.css?v=3">
 </head>
 <body>
-<div class="login-wrapper">
-    <div class="login-card">
-        <div class="login-logo">TaskM</div>
-        <div class="login-sub">创建账号，开始追踪你的目标</div>
-
-        <form id="registerForm" novalidate>
-            <div class="input-field">
-                <i class="material-icons prefix">person</i>
-                <input type="text" id="username" class="validate" autocomplete="username" required>
-                <label for="username">用户名</label>
-            </div>
-            <div class="input-field">
-                <i class="material-icons prefix">email</i>
-                <input type="email" id="email" class="validate" autocomplete="email" required>
-                <label for="email">邮箱</label>
-            </div>
-            <div class="input-field">
-                <i class="material-icons prefix">lock</i>
-                <input type="password" id="password" class="validate" autocomplete="new-password" required>
-                <label for="password">密码（至少6位）</label>
-            </div>
-            <div class="input-field">
-                <i class="material-icons prefix">lock_outline</i>
-                <input type="password" id="passwordConfirm" class="validate" autocomplete="new-password" required>
-                <label for="passwordConfirm">确认密码</label>
-            </div>
-
-            <div class="login-error" id="errorMsg"></div>
-
-            <button type="submit" class="btn waves-effect waves-light login-btn" id="submitBtn">
-                注册
-            </button>
-        </form>
-
-        <div class="login-footer">
-            已有账号？<a href="/pages/login.html">立即登录</a>
+<main class="auth-page">
+    <section class="auth-panel">
+        <div class="auth-side">
+            <div class="auth-badge">TaskM</div>
+            <h1 class="auth-title">建立你的<span>任务空间</span></h1>
+            <p class="auth-copy">注册后就可以开始管理任务、记录每日进度，并用更简洁的方式跟踪长期目标。</p>
+            <ul class="auth-points">
+                <li><i class="material-icons">check_circle</i><span>新建任务时支持类别、标签和 DDL</span></li>
+                <li><i class="material-icons">check_circle</i><span>我的一天帮助你快速推进未完成事项</span></li>
+                <li><i class="material-icons">check_circle</i><span>任务详情页可以保留完整提交历史</span></li>
+            </ul>
         </div>
-    </div>
-</div>
+        <div class="auth-form-wrap">
+            <h2 class="auth-form-title">注册</h2>
+            <p class="auth-form-subtitle">创建账号后立即开始使用。</p>
+            <form id="registerForm" novalidate>
+                <div class="input-field">
+                    <i class="material-icons prefix">person</i>
+                    <input type="text" id="username" class="validate" autocomplete="username" required>
+                    <label for="username">用户名</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">email</i>
+                    <input type="email" id="email" class="validate" autocomplete="email" required>
+                    <label for="email">邮箱</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">lock</i>
+                    <input type="password" id="password" class="validate" autocomplete="new-password" required>
+                    <label for="password">密码（至少 6 位）</label>
+                </div>
+                <div class="input-field">
+                    <i class="material-icons prefix">lock_outline</i>
+                    <input type="password" id="passwordConfirm" class="validate" autocomplete="new-password" required>
+                    <label for="passwordConfirm">确认密码</label>
+                </div>
+                <div class="form-error" id="errorMsg"></div>
+                <button type="submit" class="btn btn-primary waves-effect auth-submit" id="submitBtn">注册</button>
+            </form>
+            <div class="auth-switch">已有账号？<a href="/pages/login.html">立即登录</a></div>
+        </div>
+    </section>
+</main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/assets/js/app.js"></script>
@@ -152,12 +66,12 @@
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const errEl = document.getElementById('errorMsg');
-    const btn   = document.getElementById('submitBtn');
+    const btn = document.getElementById('submitBtn');
     errEl.style.display = 'none';
 
-    const username        = document.getElementById('username').value.trim();
-    const email           = document.getElementById('email').value.trim();
-    const password        = document.getElementById('password').value;
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
     const passwordConfirm = document.getElementById('passwordConfirm').value;
 
     if (!username || !email || !password) {
@@ -166,12 +80,12 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         return;
     }
     if (username.length < 2) {
-        errEl.textContent = '用户名至少需要2个字符';
+        errEl.textContent = '用户名至少需要 2 个字符';
         errEl.style.display = 'block';
         return;
     }
     if (password.length < 6) {
-        errEl.textContent = '密码至少需要6位';
+        errEl.textContent = '密码至少需要 6 位';
         errEl.style.display = 'block';
         return;
     }
@@ -191,16 +105,16 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         if (data.success) {
             window.location.href = '/pages/dashboard.html';
         } else {
-            errEl.textContent   = data.error || '注册失败';
+            errEl.textContent = data.error || '注册失败';
             errEl.style.display = 'block';
-            btn.disabled        = false;
-            btn.textContent     = '注册';
+            btn.disabled = false;
+            btn.textContent = '注册';
         }
     } catch (err) {
-        errEl.textContent   = '网络错误，请重试';
+        errEl.textContent = '网络错误，请重试';
         errEl.style.display = 'block';
-        btn.disabled        = false;
-        btn.textContent     = '注册';
+        btn.disabled = false;
+        btn.textContent = '注册';
     }
 });
 </script>

@@ -8,34 +8,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/app.css?v=3">
+    <style>
+        /* 强制覆盖 Materialize 导航默认背景 */
+        nav.app-nav,
+        nav.app-nav .nav-wrapper {
+            background: rgba(243, 239, 232, 0.85) !important;
+            box-shadow: none !important;
+        }
+    </style>
 </head>
 <body>
-
 <nav class="app-nav">
-    <div class="nav-wrapper container" style="max-width:800px">
-        <a href="/pages/dashboard.html" class="brand-logo">TaskM</a>
-        <ul class="right hide-on-med-and-down">
-            <li><a href="/pages/dashboard.html"><i class="material-icons left">dashboard</i>主页</a></li>
-            <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
-            <li><a href="#" id="logoutBtn"><i class="material-icons left">logout</i><span id="navUsername">...</span></a></li>
-        </ul>
-        <a href="#" data-target="mobile-nav" class="sidenav-trigger right"><i class="material-icons" style="color:#fff">menu</i></a>
+    <div class="nav-shell">
+        <a href="/pages/dashboard.html" class="brand-logo"><span class="brand-mark">Task</span>M</a>
+        <div class="nav-links hide-on-med-and-down">
+            <a href="/pages/dashboard.html" class="nav-link"><i class="material-icons">apps</i>全部任务</a>
+            <a href="/pages/myday.html" class="nav-link"><i class="material-icons">wb_sunny</i>我的一天</a>
+            <a href="#" class="nav-link nav-user" id="logoutBtn"><i class="material-icons">logout</i><span id="navUsername">...</span></a>
+        </div>
+        <a href="#" class="sidenav-trigger" data-target="mobile-nav"><i class="material-icons" style="color:var(--text)">menu</i></a>
     </div>
 </nav>
 
 <ul class="sidenav" id="mobile-nav">
-    <li><a href="/pages/dashboard.html"><i class="material-icons left">dashboard</i>主页</a></li>
+    <li><a href="/pages/dashboard.html"><i class="material-icons left">apps</i>全部任务</a></li>
     <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
     <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i>退出</a></li>
 </ul>
 
-<div class="container" style="max-width:800px;padding:20px 16px 80px;" id="detailContainer">
-    <div style="text-align:center;padding:60px 0;color:var(--text-muted)">
-        <i class="material-icons" style="font-size:3rem">hourglass_empty</i>
-        <p>加载中...</p>
+<main class="page">
+    <div class="shell detail-stack" id="detailContainer">
+        <div class="loading-state empty-state">
+            <i class="material-icons" style="color:var(--text-muted)">hourglass_empty</i>
+            <p><strong>正在加载详情</strong></p>
+            <p>请稍候。</p>
+        </div>
     </div>
-</div>
+</main>
 
 <div id="snackbar"></div>
 
@@ -47,11 +57,17 @@ const TASK_ID = new URLSearchParams(window.location.search).get('id');
 document.addEventListener('DOMContentLoaded', async () => {
     M.AutoInit();
 
-    if (!TASK_ID) { window.location.href = '/pages/dashboard.html'; return; }
+    if (!TASK_ID) {
+        window.location.href = '/pages/dashboard.html';
+        return;
+    }
 
-    // 鉴权
     const auth = await fetch('/api/auth/check.php');
-    if (!auth.ok) { window.location.href = '/pages/login.html'; return; }
+    if (!auth.ok) {
+        window.location.href = '/pages/login.html';
+        return;
+    }
+
     const { user } = await auth.json();
     document.getElementById('navUsername').textContent = user.username;
 
@@ -64,106 +80,99 @@ async function loadDetail() {
     try {
         const data = await apiGet(`/api/tasks/detail.php?id=${TASK_ID}`);
         if (!data.success) {
-            document.getElementById('detailContainer').innerHTML =
-                '<div style="text-align:center;padding:60px;color:var(--danger)">任务不存在或无权访问</div>';
+            document.getElementById('detailContainer').innerHTML = `
+                <div class="error-state empty-state">
+                    <i class="material-icons" style="color:var(--danger)">error_outline</i>
+                    <p><strong>任务不存在</strong></p>
+                    <p>请返回主页查看其他任务。</p>
+                </div>`;
             return;
         }
         renderDetail(data.task, data.commits || []);
-    } catch(e) {
-        document.getElementById('detailContainer').innerHTML =
-            '<div style="text-align:center;padding:60px;color:var(--danger)">加载失败，请刷新重试</div>';
+    } catch (e) {
+        document.getElementById('detailContainer').innerHTML = `
+            <div class="error-state empty-state">
+                <i class="material-icons" style="color:var(--danger)">error_outline</i>
+                <p><strong>加载失败</strong></p>
+                <p>请刷新后重试。</p>
+            </div>`;
     }
 }
 
 function renderDetail(task, commits) {
-    const tags  = Array.isArray(task.tags) ? task.tags : [];
-    const prog  = parseInt(task.progress) || 0;
-    const is100 = prog === 100;
-
-    const tagHtml = tags.map(t => `<span class="chip tag">${escHtml(t)}</span>`).join('');
-    const catHtml = task.category ? `<span class="chip">${escHtml(task.category)}</span>` : '';
-    const ddlHtml = task.ddl
-        ? `<span style="font-size:.85rem;${ddlClass(task.ddl)}"><i class="material-icons" style="font-size:.9rem;vertical-align:middle">event</i> DDL: ${formatDate(task.ddl)}</span>`
-        : '';
+    const tags = Array.isArray(task.tags) ? task.tags : [];
+    const progress = parseInt(task.progress, 10) || 0;
     const completedBadge = task.is_completed == 1
-        ? '<span class="chip completed"><i class="material-icons" style="font-size:.85rem;vertical-align:middle">check</i> 已完成</span>' : '';
-
+        ? '<span class="chip completed"><i class="material-icons" style="font-size:14px">check</i>已完成</span>'
+        : '';
+    const tagHtml = tags.map((tag) => `<span class="chip tag">${escHtml(tag)}</span>`).join('');
+    const categoryHtml = task.category ? `<span class="chip">${escHtml(task.category)}</span>` : '';
+    const ddlHtml = task.ddl ? `<span class="chip tag" style="${ddlClass(task.ddl)}">DDL ${formatDate(task.ddl)}</span>` : '';
     const timelineHtml = commits.length
-        ? commits.map(c => renderCommit(c)).join('')
-        : '<p style="color:var(--text-muted);font-size:.9rem;padding:20px 0">暂无提交记录</p>';
+        ? commits.map(renderCommit).join('')
+        : '<div class="empty-state" style="padding:24px 0 12px"><p><strong>暂无提交记录</strong></p><p>今天的进度会显示在这里。</p></div>';
 
     document.getElementById('detailContainer').innerHTML = `
-    <a href="/pages/dashboard.html" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);font-size:.88rem;margin-bottom:16px;text-decoration:none;">
-        <i class="material-icons" style="font-size:1.1rem">arrow_back</i>返回主页
-    </a>
-
-    <div class="detail-header">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;">
-            <h4 style="margin:0 0 10px;">${escHtml(task.title)}</h4>
-            ${completedBadge}
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px">
-            ${catHtml}${tagHtml}${ddlHtml}
-        </div>
-        ${task.description ? `<p style="color:var(--text-muted);font-size:.9rem;margin:0 0 12px;">${escHtml(task.description)}</p>` : ''}
-        <div class="progress-wrap">
-            <div class="progress-label"><span>整体进度</span><span>${prog}%</span></div>
-            <div class="progress ${is100 ? 'progress-100' : ''}">
-                <div class="determinate" style="width:${prog}%"></div>
+        <a href="/pages/dashboard.html" class="back-link"><i class="material-icons">arrow_back</i>返回主页</a>
+        <section class="detail-card">
+            <div class="detail-title-row">
+                <h1 class="detail-title">${escHtml(task.title)}</h1>
+                ${completedBadge}
             </div>
-        </div>
-    </div>
-
-    <div style="background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:0">
-        <h6 style="font-weight:800;color:var(--text);margin:0 0 20px;display:flex;align-items:center;gap:6px;">
-            <i class="material-icons" style="color:var(--primary)">history</i>历史提交记录
-            <span style="font-size:.8rem;color:var(--text-muted);font-weight:400">(${commits.length} 条)</span>
-        </h6>
-        <ul class="timeline">${timelineHtml}</ul>
-    </div>
-
-    ${task.is_completed != 1 ? `
-    <div class="detail-actions-panel" id="actionsPanel">
-        <h6 style="font-weight:800;color:var(--text);margin:0 0 14px;display:flex;align-items:center;gap:6px;">
-            <i class="material-icons" style="color:var(--primary)">edit_note</i>今日记录
-        </h6>
-        <div class="panel-tabs">
-            <button class="panel-tab active" data-panel="completed">
-                <i class="material-icons" style="font-size:.95rem;vertical-align:middle">check_circle</i> 今天完成
-            </button>
-            <button class="panel-tab" data-panel="follow_up">
-                <i class="material-icons" style="font-size:.95rem;vertical-align:middle">trending_up</i> 今天跟进
-            </button>
-        </div>
-        <div class="panel-content active" id="panelCompleted">
-            <textarea class="myday-textarea" id="completedContent" placeholder="记录你完成了什么，做到了什么..."></textarea>
-            <div style="margin-top:12px;text-align:right">
-                <button class="btn btn-primary waves-effect" id="submitCompleted">
-                    <i class="material-icons left">send</i>提交完成
-                </button>
+            <div class="task-chips">${categoryHtml}${tagHtml}${ddlHtml}</div>
+            ${task.description ? `<p class="detail-desc">${escHtml(task.description)}</p>` : ''}
+            <div class="progress-wrap">
+                <div class="progress-label"><span>整体进度</span><span>${progress}%</span></div>
+                <div class="progress ${progress === 100 ? 'progress-100' : ''}">
+                    <div class="determinate" style="width:${progress}%"></div>
+                </div>
             </div>
-        </div>
-        <div class="panel-content" id="panelFollowUp">
-            <textarea class="myday-textarea" id="followUpContent" placeholder="记录今天对这个任务的进展、行动或思考..."></textarea>
-            <div class="progress-input-row" style="margin-top:14px">
-                <label>整体进度</label>
-                <input type="range" id="followUpRange" min="0" max="100" value="${prog}" step="1">
-                <input type="number" id="followUpNum" min="0" max="100" value="${prog}">
-                <span style="font-size:.9rem;color:var(--text-muted)">%</span>
+        </section>
+        <section class="timeline-card">
+            <div class="page-toolbar" style="margin-bottom:14px">
+                <div>
+                    <h2 class="section-title">历史记录</h2>
+                    <p class="section-subtitle">共 ${commits.length} 条记录。</p>
+                </div>
             </div>
-            <div style="margin-top:12px;text-align:right">
-                <button class="btn btn-primary waves-effect" id="submitFollowUp">
-                    <i class="material-icons left">send</i>提交跟进
-                </button>
+            <ul class="timeline">${timelineHtml}</ul>
+        </section>
+        ${task.is_completed != 1 ? `
+        <section class="detail-actions-panel">
+            <div class="page-toolbar" style="margin-bottom:12px">
+                <div>
+                    <h2 class="section-title">今日记录</h2>
+                    <p class="section-subtitle">完成或跟进后，历史会自动更新。</p>
+                </div>
             </div>
-        </div>
-    </div>` : ''}
-    `;
+            <div class="panel-tabs">
+                <button class="panel-tab" data-panel="completed">今天完成</button>
+                <button class="panel-tab active" data-panel="follow_up">今天跟进</button>
+            </div>
+            <div class="panel-content" id="panelCompleted">
+                <textarea class="myday-textarea" id="completedContent" placeholder="记录你今天完成了什么"></textarea>
+                <div class="panel-actions">
+                    <button class="btn btn-primary waves-effect" id="submitCompleted">提交完成</button>
+                </div>
+            </div>
+            <div class="panel-content active" id="panelFollowUp">
+                <textarea class="myday-textarea" id="followUpContent" placeholder="记录今天的进展、行动或思考"></textarea>
+                <div class="progress-input-row">
+                    <label for="followUpRange">整体进度</label>
+                    <input type="range" id="followUpRange" min="0" max="100" value="${progress}" step="1">
+                    <input type="number" id="followUpNum" min="0" max="100" value="${progress}">
+                    <span style="color:var(--text-muted)">%</span>
+                </div>
+                <div class="panel-actions">
+                    <button class="btn btn-primary waves-effect" id="submitFollowUp">提交跟进</button>
+                </div>
+            </div>
+        </section>` : ''}`;
 
-    document.querySelectorAll('.panel-tab').forEach(tab => {
+    document.querySelectorAll('.panel-tab').forEach((tab) => {
         tab.addEventListener('click', () => {
-            document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.panel-tab').forEach((item) => item.classList.remove('active'));
+            document.querySelectorAll('.panel-content').forEach((item) => item.classList.remove('active'));
             tab.classList.add('active');
             const panelId = tab.dataset.panel === 'completed' ? 'panelCompleted' : 'panelFollowUp';
             document.getElementById(panelId)?.classList.add('active');
@@ -173,39 +182,40 @@ function renderDetail(task, commits) {
     document.getElementById('followUpRange')?.addEventListener('input', (e) => {
         document.getElementById('followUpNum').value = e.target.value;
     });
+
     document.getElementById('followUpNum')?.addEventListener('input', (e) => {
-        let v = Math.max(0, Math.min(100, parseInt(e.target.value) || 0));
-        e.target.value = v;
-        document.getElementById('followUpRange').value = v;
+        const value = Math.max(0, Math.min(100, parseInt(e.target.value, 10) || 0));
+        e.target.value = value;
+        document.getElementById('followUpRange').value = value;
     });
+
     document.getElementById('submitCompleted')?.addEventListener('click', () => {
         const content = document.getElementById('completedContent').value.trim();
         submitCommit('completed', content, 100);
     });
+
     document.getElementById('submitFollowUp')?.addEventListener('click', () => {
-        const content  = document.getElementById('followUpContent').value.trim();
-        const progress = parseInt(document.getElementById('followUpNum').value) || 0;
-        submitCommit('follow_up', content, progress);
+        const content = document.getElementById('followUpContent').value.trim();
+        const progressValue = parseInt(document.getElementById('followUpNum').value, 10) || 0;
+        submitCommit('follow_up', content, progressValue);
     });
 }
 
-function renderCommit(c) {
-    const icon  = commitTypeIcon(c.type);
-    const label = commitTypeLabel(c.type);
+function renderCommit(commit) {
     return `
-    <li class="timeline-item">
-        <div class="timeline-dot dot-${c.type}">
-            <i class="material-icons" style="font-size:1.1rem">${icon}</i>
-        </div>
-        <div class="timeline-body">
-            <div class="tl-header">
-                <span class="chip ${c.type === 'completed' ? 'completed' : ''}" style="margin:0">${label}</span>
-                <span class="tl-date">${formatDatetime(c.created_at)}</span>
+        <li class="timeline-item">
+            <div class="timeline-dot dot-${commit.type}">
+                <i class="material-icons" style="font-size:16px">${commitTypeIcon(commit.type)}</i>
             </div>
-            ${c.content ? `<div class="tl-content">${escHtml(c.content)}</div>` : ''}
-            <div class="tl-progress">进度：${c.progress}%</div>
-        </div>
-    </li>`;
+            <div class="timeline-body">
+                <div class="tl-header">
+                    <span class="chip ${commit.type === 'completed' ? 'completed' : ''}">${commitTypeLabel(commit.type)}</span>
+                    <span class="tl-date">${formatDatetime(commit.created_at)}</span>
+                </div>
+                ${commit.content ? `<div class="tl-content">${escHtml(commit.content)}</div>` : ''}
+                <div class="tl-progress">进度：${commit.progress}%</div>
+            </div>
+        </li>`;
 }
 
 async function submitCommit(type, content, progress) {
@@ -216,8 +226,12 @@ async function submitCommit(type, content, progress) {
 
     try {
         const data = await apiPost('/api/commits/create.php', {
-            task_id: TASK_ID, type, content, progress
+            task_id: TASK_ID,
+            type,
+            content,
+            progress
         });
+
         if (data.success) {
             showToast(type === 'completed' ? '已标记完成' : '跟进已提交');
             await loadDetail();
@@ -225,7 +239,7 @@ async function submitCommit(type, content, progress) {
             showToast(data.error || '提交失败');
             if (btn) btn.disabled = false;
         }
-    } catch(e) {
+    } catch (e) {
         showToast('网络错误，请重试');
         if (btn) btn.disabled = false;
     }
@@ -238,7 +252,11 @@ async function logout() {
 
 function escHtml(str) {
     if (!str) return '';
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
 </script>
 </body>
