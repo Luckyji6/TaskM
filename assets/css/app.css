@@ -358,6 +358,119 @@ nav.app-nav .brand-logo:hover {
     box-shadow: var(--shadow-lg);
 }
 
+.task-card.collapsed {
+    opacity: 0.65;
+    background: rgba(255, 255, 255, 0.55);
+    border-color: rgba(98, 77, 61, 0.06);
+    padding: 14px 16px;
+}
+
+.task-card.collapsed .task-body {
+    display: none;
+}
+
+.task-card .task-body {
+    transition: opacity 0.2s ease;
+}
+
+.task-collapse-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin-left: 8px;
+    border: 1px solid rgba(98, 77, 61, 0.08);
+}
+
+.task-collapse-toggle:hover {
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--text);
+    border-color: rgba(98, 77, 61, 0.15);
+}
+
+.task-collapse-toggle i {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+.task-card.collapsed .task-collapse-toggle i {
+    transform: rotate(-90deg);
+}
+
+.task-card .revert-btn {
+    margin-top: 12px !important;
+    font-size: 0.8rem !important;
+    padding: 0 12px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    color: var(--text) !important;
+    border: 1px solid rgba(98, 77, 61, 0.12) !important;
+}
+
+.task-card .revert-btn:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(98, 77, 61, 0.2) !important;
+}
+
+.completed-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid rgba(98, 77, 61, 0.08);
+}
+
+.completed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.68);
+    cursor: pointer;
+    transition: 0.2s ease;
+    margin-bottom: 14px;
+}
+
+.completed-header:hover {
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.completed-toggle-icon {
+    color: var(--text-muted);
+    font-size: 24px;
+    transition: transform 0.2s ease;
+}
+
+.completed-section.collapsed .completed-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.completed-tasks-body {
+    display: block;
+}
+
+.completed-section.collapsed .completed-tasks-body {
+    display: none;
+}
+
+.completed-task {
+    opacity: 0.75;
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.completed-task:hover {
+    opacity: 1;
+}
+
 .task-head {
     display: flex;
     align-items: flex-start;
@@ -1025,14 +1138,8 @@ nav.app-nav .brand-logo:hover {
 }
 
 @media (max-width: 900px) {
-    .hero,
-    .auth-panel {
+    .hero {
         grid-template-columns: 1fr;
-    }
-
-    .auth-side {
-        border-right: none;
-        border-bottom: 1px solid rgba(98, 77, 61, 0.08);
     }
 }
 
@@ -1206,11 +1313,14 @@ nav.app-nav .brand-logo:hover {
     }
 
     .auth-panel {
-        display: block;
+        display: grid;
+        grid-template-columns: 1fr;
     }
 
     .auth-side {
         padding: 24px 20px;
+        border-right: none;
+        border-bottom: 1px solid rgba(98, 77, 61, 0.08);
         border-radius: 24px 24px 0 0;
     }
 
@@ -1262,94 +1372,6 @@ nav.app-nav .brand-logo:hover {
 
     .back-link {
         margin-bottom: 12px;
-    }
-}
-
-    .app-nav .nav-shell {
-        min-height: 68px;
-    }
-
-    .hero-card,
-    .hero-side,
-    .task-card,
-    .detail-card,
-    .timeline-card,
-    .detail-actions-panel,
-    .myday-card,
-    .auth-side,
-    .auth-form-wrap {
-        padding: 20px;
-        border-radius: 24px;
-    }
-
-    .myday-actions {
-        grid-template-columns: 1fr;
-    }
-
-    .progress-input-row {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    .progress-input-row input[type='number'] {
-        width: 100%;
-    }
-
-    .fab-btn {
-        right: 18px;
-        bottom: 18px;
-    }
-
-    .detail-title {
-        font-size: 1.6rem;
-    }
-
-    .myday-title {
-        font-size: 1.5rem;
-    }
-
-    .hero-title {
-        font-size: 1.6rem;
-    }
-
-    .section-title {
-        font-size: 1rem;
-    }
-
-    .panel-tabs {
-        width: 100%;
-        display: flex;
-    }
-
-    .panel-tab {
-        flex: 1;
-        text-align: center;
-    }
-
-    .nav-links {
-        display: none;
-    }
-
-    .sidenav-trigger {
-        display: block !important;
-    }
-
-    .auth-panel {
-        display: block;
-    }
-
-    .auth-side,
-    .auth-form-wrap {
-        padding: 24px 20px;
-    }
-
-    .auth-title {
-        font-size: 1.8rem;
-    }
-
-    .metric-pill {
-        min-width: auto;
-        flex: 1;
     }
 }
 
