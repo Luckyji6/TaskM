@@ -951,10 +951,21 @@ nav.app-nav .brand-logo:hover {
     align-items: center;
 }
 
-.tl-date,
+.tl-date {
+    color: var(--text);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
 .tl-progress {
     color: var(--text-muted);
     font-size: 0.82rem;
+}
+
+.timeline-title {
+    font-size: 1.3rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
 }
 
 .tl-content {
@@ -1340,4 +1351,99 @@ nav.app-nav .brand-logo:hover {
         min-width: auto;
         flex: 1;
     }
+}
+
+.flatpickr-calendar {
+    background: #fffdf9;
+    border-radius: 22px;
+    box-shadow: 0 28px 72px rgba(40, 27, 18, 0.12);
+    border: 1px solid rgba(98, 77, 61, 0.14);
+    padding: 12px;
+}
+
+.flatpickr-day {
+    border-radius: 12px;
+    color: #201a17;
+    font-weight: 500;
+}
+
+.flatpickr-day:hover {
+    background: #f3efe8;
+    border-radius: 12px;
+}
+
+.flatpickr-day.selected {
+    background: #c96a3b !important;
+    border-radius: 12px;
+}
+
+.flatpickr-day.today {
+    border: 2px solid #c96a3b;
+    border-radius: 12px;
+}
+
+.flatpickr-months .flatpickr-month {
+    background: #c96a3b;
+    color: white;
+    border-radius: 12px 12px 0 0;
+    height: 42px;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    background: #c96a3b;
+    color: white;
+}
+
+.flatpickr-current-month input.cur-year {
+    color: white;
+    font-weight: 600;
+}
+
+.flatpickr-weekday {
+    color: #7f746a;
+    font-weight: 600;
+}
+
+span.flatpickr-weekday {
+    background: transparent;
+}
+
+.flatpickr-time {
+    border-top: 1px solid rgba(98, 77, 61, 0.14);
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.flatpickr-time input {
+    color: #201a17;
+    font-weight: 500;
+}
+
+.flatpickr-am-pm {
+    color: #7f746a;
+}
+
+.numInputWrapper span {
+    border-color: rgba(255,255,255,0.5);
+}
+
+.numInputWrapper span:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+#newDdl {
+    background: #f3efe8;
+    border: 1px solid rgba(98, 77, 61, 0.14);
+    border-radius: 16px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    color: #201a17;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#newDdl:focus {
+    border-color: #c96a3b;
+    box-shadow: 0 0 0 3px rgba(201, 106, 59, 0.15);
+    outline: none;
 }

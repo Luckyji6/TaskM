@@ -111,6 +111,11 @@ function renderDetail(task, commits) {
     const timelineHtml = commits.length
         ? commits.map(renderCommit).join('')
         : '<div class="empty-state" style="padding:24px 0 12px"><p><strong>暂无提交记录</strong></p><p>今天的进度会显示在这里。</p></div>';
+    
+    const hasCommitToday = commits.some(commit => {
+        const commitDate = new Date(commit.created_at).toDateString();
+        return commitDate === new Date().toDateString();
+    });
 
     document.getElementById('detailContainer').innerHTML = `
         <a href="/pages/dashboard.html" class="back-link"><i class="material-icons">arrow_back</i>返回主页</a>
@@ -131,7 +136,7 @@ function renderDetail(task, commits) {
         <section class="timeline-card">
             <div class="page-toolbar" style="margin-bottom:14px">
                 <div>
-                    <h2 class="section-title">历史记录</h2>
+                    <h2 class="section-title timeline-title">历史记录</h2>
                     <p class="section-subtitle">共 ${commits.length} 条记录。</p>
                 </div>
             </div>
@@ -145,29 +150,57 @@ function renderDetail(task, commits) {
                     <p class="section-subtitle">完成或跟进后，历史会自动更新。</p>
                 </div>
             </div>
-            <div class="panel-tabs">
-                <button class="panel-tab" data-panel="completed">今天完成</button>
-                <button class="panel-tab active" data-panel="follow_up">今天跟进</button>
-            </div>
-            <div class="panel-content" id="panelCompleted">
-                <textarea class="myday-textarea" id="completedContent" placeholder="记录你今天完成了什么"></textarea>
-                <div class="panel-actions">
-                    <button class="btn btn-primary waves-effect" id="submitCompleted">提交完成</button>
+            <div style="text-align:center;padding:32px 0" id="todayActionInit">
+                <i class="material-icons" style="font-size:48px;color:var(--primary);margin-bottom:12px">edit_note</i>
+                <p style="color:var(--text-muted);margin-bottom:16px">${hasCommitToday ? '今天已有记录，继续添加更多吧' : '今天还没有记录，快来添加第一条吧'}</p>
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+                    <button class="btn btn-outline waves-effect" id="showCompletedBtn"><i class="material-icons left">check_circle</i>今天完成</button>
+                    <button class="btn btn-primary waves-effect" id="showFollowUpBtn"><i class="material-icons left">trending_up</i>今天跟进</button>
                 </div>
             </div>
-            <div class="panel-content active" id="panelFollowUp">
-                <textarea class="myday-textarea" id="followUpContent" placeholder="记录今天的进展、行动或思考"></textarea>
-                <div class="progress-input-row">
-                    <label for="followUpRange">整体进度</label>
-                    <input type="range" id="followUpRange" min="0" max="100" value="${progress}" step="1">
-                    <input type="number" id="followUpNum" min="0" max="100" value="${progress}">
-                    <span style="color:var(--text-muted)">%</span>
+            <div id="todayPanelWrap" style="display:none">
+                <div class="panel-tabs">
+                    <button class="panel-tab" data-panel="completed">今天完成</button>
+                    <button class="panel-tab active" data-panel="follow_up">今天跟进</button>
                 </div>
-                <div class="panel-actions">
-                    <button class="btn btn-primary waves-effect" id="submitFollowUp">提交跟进</button>
+                <div class="panel-content" id="panelCompleted">
+                    <textarea class="myday-textarea" id="completedContent" placeholder="记录你今天完成了什么"></textarea>
+                    <div class="panel-actions">
+                        <button class="btn btn-primary waves-effect" id="submitCompleted">提交完成</button>
+                    </div>
+                </div>
+                <div class="panel-content active" id="panelFollowUp">
+                    <textarea class="myday-textarea" id="followUpContent" placeholder="记录今天的进展、行动或思考"></textarea>
+                    <div class="progress-input-row">
+                        <label for="followUpRange">整体进度</label>
+                        <input type="range" id="followUpRange" min="0" max="100" value="${progress}" step="1">
+                        <input type="number" id="followUpNum" min="0" max="100" value="${progress}">
+                        <span style="color:var(--text-muted)">%</span>
+                    </div>
+                    <div class="panel-actions">
+                        <button class="btn btn-primary waves-effect" id="submitFollowUp">提交跟进</button>
+                    </div>
                 </div>
             </div>
         </section>` : ''}`;
+
+    document.getElementById('showCompletedBtn')?.addEventListener('click', () => {
+        document.getElementById('todayActionInit').style.display = 'none';
+        document.getElementById('todayPanelWrap').style.display = 'block';
+        document.querySelectorAll('.panel-tab').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.panel-content').forEach(item => item.classList.remove('active'));
+        document.querySelector('[data-panel="completed"]')?.classList.add('active');
+        document.getElementById('panelCompleted')?.classList.add('active');
+    });
+
+    document.getElementById('showFollowUpBtn')?.addEventListener('click', () => {
+        document.getElementById('todayActionInit').style.display = 'none';
+        document.getElementById('todayPanelWrap').style.display = 'block';
+        document.querySelectorAll('.panel-tab').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.panel-content').forEach(item => item.classList.remove('active'));
+        document.querySelector('[data-panel="follow_up"]')?.classList.add('active');
+        document.getElementById('panelFollowUp')?.classList.add('active');
+    });
 
     document.querySelectorAll('.panel-tab').forEach((tab) => {
         tab.addEventListener('click', () => {
