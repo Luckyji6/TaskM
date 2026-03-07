@@ -514,6 +514,74 @@ nav.app-nav .brand-logo:hover {
     line-height: 1.6;
 }
 
+.task-node {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.node-dot {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(98, 77, 61, 0.08);
+}
+
+.node-dot.dot-no_progress {
+    color: var(--text-muted);
+}
+
+.node-dot.dot-completed {
+    color: var(--success);
+}
+
+.node-dot.dot-follow_up {
+    color: var(--warning);
+}
+
+.node-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.node-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.node-header .chip {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+}
+
+.node-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.node-content {
+    font-size: 0.8rem;
+    color: var(--text);
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.node-progress {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
 .chip {
     display: inline-flex;
     align-items: center;

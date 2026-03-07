@@ -427,6 +427,16 @@ function renderTasks(tasks, sort) {
     });
 }
 
+function commitTypeIcon(type) {
+    const map = { 'no_progress': 'remove', 'completed': 'check', 'follow_up': 'update' };
+    return map[type] || 'remove';
+}
+
+function commitTypeLabel(type) {
+    const map = { 'no_progress': '无进展', 'completed': '已完成', 'follow_up': '跟进中' };
+    return map[type] || '记录';
+}
+
 function renderTaskCard(task) {
     const tags = Array.isArray(task.tags) ? task.tags : [];
     const progress = parseInt(task.progress, 10) || 0;
@@ -440,8 +450,20 @@ function renderTaskCard(task) {
         ? `<span style="${ddlClass(task.ddl)}"><i class="material-icons" style="font-size:15px">event</i>${formatDate(task.ddl)}</span>`
         : '';
     const tagsHtml = tags.map((tag) => `<span class="chip tag">${escHtml(tag)}</span>`).join('');
-    const commitHtml = task.last_commit_content
-        ? `<div class="task-last-commit">${escHtml(task.last_commit_content)}</div>`
+    const commitHtml = task.last_commit_type
+        ? `<div class="task-node">
+            <div class="node-dot dot-${task.last_commit_type}">
+                <i class="material-icons" style="font-size:14px">${commitTypeIcon(task.last_commit_type)}</i>
+            </div>
+            <div class="node-body">
+                <div class="node-header">
+                    <span class="chip ${task.last_commit_type === 'completed' ? 'completed' : ''}">${commitTypeLabel(task.last_commit_type)}</span>
+                    <span class="node-date">${task.last_commit_at ? formatDatetime(task.last_commit_at) : ''}</span>
+                </div>
+                ${task.last_commit_content ? `<div class="node-content">${escHtml(task.last_commit_content)}</div>` : ''}
+                <div class="node-progress">进度：${task.last_commit_progress ?? progress}%</div>
+            </div>
+        </div>`
         : '';
 
     return `
@@ -473,8 +495,20 @@ function renderCompletedSection(tasks) {
             ? `<span style="color:var(--text-muted)"><i class="material-icons" style="font-size:15px">event</i>${formatDate(task.ddl)}</span>`
             : '';
         const tagsHtml = tags.map((tag) => `<span class="chip tag">${escHtml(tag)}</span>`).join('');
-        const commitHtml = task.last_commit_content
-            ? `<div class="task-last-commit">${escHtml(task.last_commit_content)}</div>`
+        const commitHtml = task.last_commit_type
+            ? `<div class="task-node">
+                <div class="node-dot dot-${task.last_commit_type}">
+                    <i class="material-icons" style="font-size:14px">${commitTypeIcon(task.last_commit_type)}</i>
+                </div>
+                <div class="node-body">
+                    <div class="node-header">
+                        <span class="chip ${task.last_commit_type === 'completed' ? 'completed' : ''}">${commitTypeLabel(task.last_commit_type)}</span>
+                        <span class="node-date">${task.last_commit_at ? formatDatetime(task.last_commit_at) : ''}</span>
+                    </div>
+                    ${task.last_commit_content ? `<div class="node-content">${escHtml(task.last_commit_content)}</div>` : ''}
+                    <div class="node-progress">进度：${task.last_commit_progress ?? progress}%</div>
+                </div>
+            </div>`
             : '';
 
         return `

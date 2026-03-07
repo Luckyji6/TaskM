@@ -32,6 +32,7 @@ $sql = "
         t.*,
         c.content   AS last_commit_content,
         c.type      AS last_commit_type,
+        c.progress  AS last_commit_progress,
         c.created_at AS last_commit_at
     FROM tasks t
     LEFT JOIN commits c ON c.id = (
