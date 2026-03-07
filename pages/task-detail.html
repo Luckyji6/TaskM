@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>任务详情 — TaskM</title>
+    <link rel="icon" type="image/png" href="/assets/pic/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -166,17 +167,17 @@ function renderDetail(task, commits) {
                 <i class="material-icons" style="font-size:48px;color:var(--primary);margin-bottom:12px">edit_note</i>
                 <p style="color:var(--text-muted);margin-bottom:16px">${hasCommitToday ? '今天已有记录，继续添加更多吧' : '今天还没有记录，快来添加第一条吧'}</p>
                 <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-                    <button class="btn btn-outline waves-effect" id="showCompletedBtn"><i class="material-icons left">check_circle</i>今天完成</button>
+                    <button class="btn btn-outline waves-effect" id="showCompletedBtn"><i class="material-icons left">check_circle</i>完成</button>
                     <button class="btn btn-primary waves-effect" id="showFollowUpBtn"><i class="material-icons left">trending_up</i>今天跟进</button>
                 </div>
             </div>
             <div id="todayPanelWrap" style="display:none">
                 <div class="panel-tabs">
-                    <button class="panel-tab" data-panel="completed">今天完成</button>
+                    <button class="panel-tab" data-panel="completed">完成</button>
                     <button class="panel-tab active" data-panel="follow_up">今天跟进</button>
                 </div>
                 <div class="panel-content" id="panelCompleted">
-                    <textarea class="myday-textarea" id="completedContent" placeholder="记录你今天完成了什么"></textarea>
+                    <textarea class="myday-textarea" id="completedContent" placeholder="记录你完成了什么"></textarea>
                     <div class="panel-actions">
                         <button class="btn btn-primary waves-effect" id="submitCompleted">提交完成</button>
                     </div>

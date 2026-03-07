@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的一天 — TaskM</title>
+    <link rel="icon" type="image/png" href="/assets/pic/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -232,12 +233,12 @@ function render() {
                 </div>
                 <div class="myday-actions">
                     <button class="btn btn-soft waves-effect" id="btnNoProgress">今天没做</button>
-                    <button class="btn btn-primary waves-effect" id="btnCompleted">今天完成</button>
+                    <button class="btn btn-primary waves-effect" id="btnCompleted">完成</button>
                     <button class="btn btn-outline waves-effect" id="btnFollowUp">今天跟进</button>
                 </div>
                 <div id="panelCompleted" class="myday-expand" style="display:none">
                     <p class="expand-title"><i class="material-icons" style="color:var(--success)">check_circle</i>完成了什么</p>
-                    <textarea class="myday-textarea" id="completedContent" placeholder="记录今天完成了什么"></textarea>
+                    <textarea class="myday-textarea" id="completedContent" placeholder="记录完成了什么"></textarea>
                     <div class="panel-actions">
                         <button class="btn btn-outline waves-effect" id="cancelCompleted">取消</button>
                         <button class="btn btn-primary waves-effect" id="submitCompleted">提交完成</button>
