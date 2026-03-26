@@ -1,83 +1,79 @@
 # TaskM
 
-TaskM 是一个基于 PHP + MySQL + 原生 JavaScript 的任务管理应用。
+[中文文档](./README.zh-CN.md)
 
-## 技术栈
+TaskM is a task management web application built with PHP, MySQL, and vanilla JavaScript.
 
-- 后端：PHP 8、PDO、MySQL
-- 前端：HTML、原生 JavaScript、Materialize CSS
-- 鉴权：PHP Session
-- 数据：首次访问时自动初始化数据表
+## Tech Stack
 
-## 项目结构
+- Backend: PHP 8, PDO, MySQL
+- Frontend: HTML, vanilla JavaScript, Materialize CSS
+- Auth: PHP Session
+- Data: tables are initialized automatically on first request
+
+## Project Structure
 
 ```text
 .
-├── api/            接口目录
-├── assets/         公共样式与脚本
-├── config/         数据库配置
-├── pages/          页面文件
-├── index.html      入口页
+├── api/            API endpoints
+├── assets/         Shared styles and scripts
+├── config/         Database configuration
+├── pages/          Page files
+├── index.html      Entry page
 └── README.md
 ```
 
-## 环境要求
+## Requirements
 
-- Linux 服务器或本地开发环境
-- PHP 8.0 及以上
-- MySQL 5.7 及以上，或兼容版本
-- Web 服务器：Nginx、Apache，或 PHP 内置服务器
+- Linux server or local development environment
+- PHP 8.0+
+- MySQL 5.7+ or compatible versions
+- Web server: Nginx, Apache, or PHP built-in server
 
-## 部署前准备
+## Before Deployment
 
-### 1. 准备数据库
+### 1. Prepare the database
 
-先确保 MySQL 服务已启动，并且有可用账号。
+Make sure MySQL is running and you have a valid account.
 
-当前项目使用的配置文件是 `config/db.php`。
+The project does not expose any default database password in the documentation.
 
-默认配置如下：
+You can configure the database in either of these ways:
 
-```php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'taskm');
-define('DB_USER', 'root');
-define('DB_PASS', '123456jx');
-```
+1. Environment variables: `TASKM_DB_HOST`, `TASKM_DB_NAME`, `TASKM_DB_USER`, `TASKM_DB_PASS`, `TASKM_DB_CHARSET`
+2. Local config file: copy `config/db.example.php` to `config/db.local.php` and fill in your own database credentials
 
-如果你的环境不同，直接修改 `config/db.php` 中的数据库配置即可。
+`config/db.local.php` is ignored by Git and will not be committed.
 
-### 2. 准备站点目录
+### 2. Prepare the site directory
 
-把项目文件上传到网站根目录，例如：
+Upload the project to your site root, for example:
 
 ```bash
 /www/wwwroot/taskm.ic8b.cn
 ```
 
-确保 Web 服务器用户对该目录有读取权限。
+Make sure the web server user can read the directory.
 
-## 部署方式一：Nginx + PHP-FPM
+## Deployment Option 1: Nginx + PHP-FPM
 
-### 1. 创建站点
+### 1. Create the site
 
-站点根目录指向项目目录：
+Point the site root to:
 
 ```text
 /www/wwwroot/taskm.ic8b.cn
 ```
 
-### 2. 配置 PHP
+### 2. Configure PHP
 
-确保站点使用 PHP 8 或更高版本。
+Use PHP 8 or later.
 
-### 3. 配置伪静态
+### 3. Configure routing
 
-本项目不依赖复杂路由，静态页面与 PHP 接口分目录放置，一般不需要额外伪静态规则。
+This project does not require complex rewrite rules. Static pages and PHP APIs are stored in separate directories, so basic PHP execution is enough.
 
-如果是标准 Nginx + PHP-FPM，只要保证 `.php` 可以正常执行即可。
-
-示例：
+Example:
 
 ```nginx
 server {
@@ -98,113 +94,114 @@ server {
 }
 ```
 
-实际 `fastcgi_pass` 按你的服务器环境调整。
+Adjust `fastcgi_pass` for your server.
 
-## 部署方式二：PHP 内置服务器
+## Deployment Option 2: PHP Built-in Server
 
-适合本地开发或临时预览。
+Suitable for local development or quick preview.
 
-在项目根目录执行：
+Run in the project root:
 
 ```bash
 php -S 0.0.0.0:8000
 ```
 
-然后访问：
+Then open:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-## 首次启动说明
+## First Run Behavior
 
-项目会在首次请求数据库时自动执行初始化逻辑：
+On the first database request, the project will automatically:
 
-- 自动连接 MySQL
-- 自动创建数据库 `taskm`（如果当前账号有权限）
-- 自动创建以下表：
-  - `users`
-  - `tasks`
-  - `commits`
+- connect to MySQL
+- create the `taskm` database if the current account has permission
+- create these tables:
+- `users`
+- `tasks`
+- `commits`
 
-如果你的数据库账号没有创建数据库权限，也没关系，但你需要提前手动创建 `taskm` 数据库。
+If your database account cannot create databases, create `taskm` manually in advance.
 
-## 登录与注册流程
+## Login and Registration Flow
 
-- 用户在前端输入明文密码
-- 浏览器使用 SHA-256 先做一次哈希
-- 服务端接收哈希值后，再用 bcrypt 保存
-- 登录成功后，通过 PHP Session 维持登录状态
+- The user enters a plain-text password in the frontend
+- The browser hashes it once with SHA-256
+- The server stores the received hash using bcrypt
+- After login, PHP Session keeps the user signed in
 
-## 常见问题
+## Common Issues
 
-### 1. 出现数据库连接错误
+### 1. Database connection error
 
-例如：
+For example:
 
 ```text
 SQLSTATE[HY000] [1045] Access denied
 ```
 
-说明 MySQL 用户名或密码不对。
+This usually means the MySQL username or password is incorrect.
 
-处理方式：
+How to check:
 
-1. 打开 `config/db.php`
-2. 检查 `DB_HOST`、`DB_NAME`、`DB_USER`、`DB_PASS`
-3. 确认 MySQL 账号可以登录
+1. Check environment variables or `config/db.local.php`
+2. Confirm `host`, `name`, `user`, and `pass` are correct
+3. Confirm the MySQL account can log in
 
-可用命令测试：
+You can test with:
 
 ```bash
 mysql -u root -p
 ```
 
-### 2. 页面能打开，但接口返回 500
+### 2. The page opens but the API returns 500
 
-常见原因：
+Common causes:
 
-- PHP 版本过低
-- MySQL 配置错误
-- PHP 没有启用 PDO 或 pdo_mysql
+- PHP version is too old
+- MySQL configuration is wrong
+- PDO or `pdo_mysql` is not enabled
 
-请先检查：
+Check:
 
 ```bash
 php -v
 php -m | grep -E 'PDO|pdo_mysql'
 ```
 
-### 3. 登录页一直不跳转
+### 3. The login page does not redirect
 
-先检查浏览器开发者工具中的网络请求：
+Check these network requests in the browser devtools:
 
 - `/api/auth/check.php`
 - `/api/auth/login.php`
 
-如果返回 401，说明当前未登录，这是正常现象。
-如果返回 500，通常是后端配置问题。
+If the API returns 401, that is normal when not logged in.
+If it returns 500, it is usually a backend configuration issue.
 
-## 文件修改建议
+## File Guide
 
-- 页面布局主要在 `pages/*.html`
-- 公共样式在 `assets/css/app.css`
-- 公共脚本在 `assets/js/app.js`
-- 数据库配置与公共函数在 `config/db.php`
-- 业务接口在 `api/`
+- Page layouts: `pages/*.html`
+- Shared styles: `assets/css/app.css`
+- Shared scripts: `assets/js/app.js`
+- Database entry and shared helpers: `config/db.php`
+- Local sensitive database config: `config/db.local.php`
+- Business APIs: `api/`
 
-## 生产环境建议
+## Production Suggestions
 
-- 把 `config/db.php` 中的数据库账号改成权限更小的专用账号
-- 使用 HTTPS
-- 定期备份数据库
-- 不要把真实敏感配置提交到公开仓库
+- Never put real secrets in `README.md`, public repositories, or tracked files
+- Use a dedicated low-privilege database account in production
+- Enable HTTPS
+- Back up the database regularly
 
-## 维护说明
+## Maintenance Notes
 
-如果你要继续扩展功能，建议优先遵循：
+If you continue extending the project, keep these rules:
 
-- 保持接口返回 JSON
-- 所有数据库操作使用预处理语句
-- 前端渲染用户输入时做转义
-- 页面尽量复用 `assets/css/app.css` 与 `assets/js/app.js`
+- Return JSON from APIs
+- Use prepared statements for all database operations
+- Escape user input before rendering in the frontend
+- Reuse `assets/css/app.css` and `assets/js/app.js` where possible
