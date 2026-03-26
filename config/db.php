@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set('Asia/Shanghai'); // GMT+8
+
 // 关闭 PHP 错误 HTML 输出，防止污染 JSON 响应
 ini_set('display_errors', '0');
 ini_set('display_startup_errors', '0');
@@ -148,11 +150,45 @@ set_exception_handler(function (Throwable $e) {
     exit;
 });
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'taskm');
-define('DB_USER', 'root');
-define('DB_PASS', '123456jx');
-define('DB_CHARSET', 'utf8mb4');
+function loadDbConfig(): array {
+    $config = [
+        'host' => getenv('TASKM_DB_HOST') !== false ? getenv('TASKM_DB_HOST') : null,
+        'name' => getenv('TASKM_DB_NAME') !== false ? getenv('TASKM_DB_NAME') : null,
+        'user' => getenv('TASKM_DB_USER') !== false ? getenv('TASKM_DB_USER') : null,
+        'pass' => getenv('TASKM_DB_PASS') !== false ? getenv('TASKM_DB_PASS') : null,
+        'charset' => getenv('TASKM_DB_CHARSET') !== false ? getenv('TASKM_DB_CHARSET') : 'utf8mb4',
+    ];
+
+    $localConfigPath = __DIR__ . '/db.local.php';
+    if (is_file($localConfigPath)) {
+        $localConfig = require $localConfigPath;
+        if (!is_array($localConfig)) {
+            throw new RuntimeException('数据库本地配置文件格式错误');
+        }
+
+        foreach (['host', 'name', 'user', 'pass', 'charset'] as $key) {
+            if (array_key_exists($key, $localConfig)) {
+                $config[$key] = $localConfig[$key];
+            }
+        }
+    }
+
+    foreach (['host', 'name', 'user', 'pass'] as $key) {
+        if ($config[$key] === null) {
+            throw new RuntimeException('缺少数据库配置：' . $key);
+        }
+    }
+
+    return $config;
+}
+
+$dbConfig = loadDbConfig();
+
+define('DB_HOST', $dbConfig['host']);
+define('DB_NAME', $dbConfig['name']);
+define('DB_USER', $dbConfig['user']);
+define('DB_PASS', $dbConfig['pass']);
+define('DB_CHARSET', $dbConfig['charset'] ?: 'utf8mb4');
 
 function getDB(): PDO {
     static $pdo = null;
@@ -180,6 +216,7 @@ function getDB(): PDO {
             'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET,
             DB_USER, DB_PASS, $options
         );
+        $pdo->exec("SET time_zone = '+08:00'"); // GMT+8
     }
     return $pdo;
 }
