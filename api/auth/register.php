@@ -31,10 +31,15 @@ if (strlen($hashClient) !== 64 || !ctype_xdigit($hashClient)) {
 
 $captchaResult = verifyAliyunCaptcha($captchaVerifyParam);
 if (!$captchaResult['success']) {
-    jsonResponse([
-        'error_key' => $captchaResult['error_key'] ?? 'captcha.verify_failed',
+    $response = [
         'captchaVerifyResult' => $captchaResult['captchaResult'],
-    ], $captchaResult['captchaResult'] === false ? 400 : 500);
+    ];
+    if (!empty($captchaResult['error_key'])) {
+        $response['error_key'] = $captchaResult['error_key'];
+    } else {
+        $response['error'] = $captchaResult['error'] ?? t('captcha.verify_failed');
+    }
+    jsonResponse($response, $captchaResult['captchaResult'] === false ? 400 : 500);
 }
 
 $pdo = getInitializedDB();
