@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: PHP syntax check (tracked files only)
+        run: |
+          set -euo pipefail
+          mapfile -t php_files < <(git ls-files '*.php' 2>/dev/null || true)
+          if [ ${#php_files[@]} -eq 0 ]; then
+            echo "No tracked .php files."
+            exit 0
+          fi
+          for f in "${php_files[@]}"; do
+            [[ -n "$f" ]] || continue
+            echo "php -l $f"
+            php -l "$f"
+          done
+
+      - name: JavaScript syntax check (tracked assets/js)
+        run: |
+          set -euo pipefail
+          mapfile -t js_files < <(git ls-files 'assets/js/*.js' 2>/dev/null || true)
+          if [ ${#js_files[@]} -eq 0 ]; then
+            echo "No tracked assets/js/*.js files."
+            exit 0
+          fi
+          for f in "${js_files[@]}"; do
+            [[ -n "$f" ]] || continue
+            echo "node --check $f"
+            node --check "$f"
+          done
