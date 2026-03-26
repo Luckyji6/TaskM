@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 $user = requireAuth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    jsonResponse(['error' => '仅支持 POST 请求'], 405);
+    jsonResponse(['error_key' => 'common.post_only'], 405);
 }
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -18,11 +18,11 @@ $tags        = $body['tags'] ?? [];
 $ddl         = $body['ddl'] ?? null;
 
 if (!$title) {
-    jsonResponse(['error' => '任务标题不能为空'], 400);
+    jsonResponse(['error_key' => 'common.task_title_required'], 400);
 }
 
 if ($ddl && !strtotime($ddl)) {
-    jsonResponse(['error' => 'DDL 时间格式不正确'], 400);
+    jsonResponse(['error_key' => 'common.invalid_ddl'], 400);
 }
 
 if (!is_array($tags)) {

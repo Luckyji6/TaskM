@@ -8,7 +8,7 @@ $user = requireAuth();
 
 $taskId = $_GET['id'] ?? '';
 if (!$taskId) {
-    jsonResponse(['error' => '缺少任务 ID'], 400);
+    jsonResponse(['error_key' => 'common.missing_task_id'], 400);
 }
 
 $pdo  = getInitializedDB();
@@ -17,7 +17,7 @@ $stmt->execute([$taskId, $user['id']]);
 $task = $stmt->fetch();
 
 if (!$task) {
-    jsonResponse(['error' => '任务不存在'], 404);
+    jsonResponse(['error_key' => 'common.task_not_found'], 404);
 }
 
 $task['tags'] = json_decode($task['tags'] ?? '[]', true);

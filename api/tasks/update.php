@@ -7,21 +7,21 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 $user = requireAuth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    jsonResponse(['error' => '仅支持 POST 请求'], 405);
+    jsonResponse(['error_key' => 'common.post_only'], 405);
 }
 
 $body   = json_decode(file_get_contents('php://input'), true);
 $taskId = $body['id'] ?? '';
 
 if (!$taskId) {
-    jsonResponse(['error' => '缺少任务 ID'], 400);
+    jsonResponse(['error_key' => 'common.missing_task_id'], 400);
 }
 
 $pdo  = getInitializedDB();
 $stmt = $pdo->prepare('SELECT id FROM tasks WHERE id = ? AND user_id = ?');
 $stmt->execute([$taskId, $user['id']]);
 if (!$stmt->fetch()) {
-    jsonResponse(['error' => '任务不存在'], 404);
+    jsonResponse(['error_key' => 'common.task_not_found'], 404);
 }
 
 $fields = [];
@@ -53,7 +53,7 @@ if (array_key_exists('tags', $body)) {
 }
 
 if (empty($fields)) {
-    jsonResponse(['error' => '没有可更新的字段'], 400);
+    jsonResponse(['error_key' => 'common.no_fields_to_update'], 400);
 }
 
 // 进度到 100% 自动标记完成，低于 100% 自动取消完成

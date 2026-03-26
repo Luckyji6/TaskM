@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    jsonResponse(['error' => '仅支持 POST 请求'], 405);
+    jsonResponse(['error_key' => 'common.post_only'], 405);
 }
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -17,17 +17,17 @@ $hashClient = trim($body['hash_client'] ?? '');
 $captchaVerifyParam = $body['captchaVerifyParam'] ?? '';
 
 if (!$account || !$hashClient || !$captchaVerifyParam) {
-    jsonResponse(['error' => '参数不完整'], 400);
+    jsonResponse(['error_key' => 'common.missing_params'], 400);
 }
 
 if (strlen($hashClient) !== 64 || !ctype_xdigit($hashClient)) {
-    jsonResponse(['error' => '密码格式不正确'], 400);
+    jsonResponse(['error_key' => 'common.invalid_password_hash'], 400);
 }
 
 $captchaResult = verifyAliyunCaptcha($captchaVerifyParam);
 if (!$captchaResult['success']) {
     jsonResponse([
-        'error' => $captchaResult['error'],
+        'error_key' => $captchaResult['error_key'] ?? 'captcha.verify_failed',
         'captchaVerifyResult' => $captchaResult['captchaResult'],
     ], $captchaResult['captchaResult'] === false ? 400 : 500);
 }
@@ -45,7 +45,7 @@ if (!$user) {
 }
 
 if (!$user || !password_verify($hashClient, $user['password_hash'])) {
-    jsonResponse(['error' => '用户名/邮箱或密码不正确'], 401);
+    jsonResponse(['error_key' => 'auth.invalid_credentials'], 401);
 }
 
 $_SESSION['user_id']  = $user['id'];

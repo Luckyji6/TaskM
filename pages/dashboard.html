@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>主页 — TaskM</title>
+    <title>主页 - TaskM</title>
     <link rel="icon" type="image/png" href="/assets/pic/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -200,8 +200,8 @@
     <div class="nav-shell">
         <a href="/pages/dashboard.html" class="brand-logo"><span class="brand-mark">Task</span>M</a>
         <div class="nav-links hide-on-med-and-down">
-            <a href="/pages/dashboard.html" class="nav-link active"><i class="material-icons">apps</i>全部任务</a>
-            <a href="/pages/myday.html" class="nav-link"><i class="material-icons">wb_sunny</i>我的一天</a>
+            <a href="/pages/dashboard.html" class="nav-link active"><i class="material-icons">apps</i><span data-i18n="common.allTasks">全部任务</span></a>
+            <a href="/pages/myday.html" class="nav-link"><i class="material-icons">wb_sunny</i><span data-i18n="common.myDay">我的一天</span></a>
             <a href="#" class="nav-link nav-user" id="logoutBtn"><i class="material-icons">logout</i><span id="navUsername">...</span></a>
         </div>
         <a href="#" class="sidenav-trigger" data-target="mobile-nav"><i class="material-icons" style="color:var(--text)">menu</i></a>
@@ -209,66 +209,66 @@
 </nav>
 
 <ul class="sidenav" id="mobile-nav">
-    <li><a href="/pages/dashboard.html"><i class="material-icons left">apps</i>全部任务</a></li>
-    <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
-    <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i>退出</a></li>
+    <li><a href="/pages/dashboard.html"><i class="material-icons left">apps</i><span data-i18n="common.allTasks">全部任务</span></a></li>
+    <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i><span data-i18n="common.myDay">我的一天</span></a></li>
+    <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i><span data-i18n="common.logout">退出</span></a></li>
 </ul>
 
 <main class="page">
     <div class="shell">
         <section class="hero">
             <div class="hero-card">
-                <div class="hero-eyebrow"><i class="material-icons" style="font-size:16px;color:var(--primary)">schedule</i>今日视图</div>
-                <h1 class="hero-title">你好，<span id="greetName">...</span></h1>
-                <p class="hero-desc" id="taskSummary">加载中...</p>
+                <div class="hero-eyebrow"><i class="material-icons" style="font-size:16px;color:var(--primary)">schedule</i><span data-i18n="dashboard.heroTodayView">今日视图</span></div>
+                <h1 class="hero-title" id="greetName">...</h1>
+                <p class="hero-desc" id="taskSummary" data-i18n="common.loading">加载中...</p>
                 <div class="hero-meta">
                     <div class="metric-pill">
-                        <span class="metric-label">最急着处理</span>
-                        <span class="metric-value" id="taskStatusText">同步中</span>
-                        <div class="insight-copy" id="overdueCopy" style="font-size:0.82rem;margin-top:8px">正在分析逾期与临近截止的任务。</div>
+                        <span class="metric-label" data-i18n="dashboard.urgentLabel">最急着处理</span>
+                        <span class="metric-value" id="taskStatusText" data-i18n="dashboard.syncing">同步中</span>
+                        <div class="insight-copy" id="overdueCopy" style="font-size:0.82rem;margin-top:8px" data-i18n="dashboard.overdueAnalyzing">正在分析逾期与临近截止的任务。</div>
                         <div class="insight-list" id="overdueList" style="margin-top:10px"></div>
                     </div>
                     <div class="metric-pill">
-                        <span class="metric-label">需要补记录</span>
-                        <span class="metric-value" id="stalledTaskText">同步中</span>
-                        <div class="insight-copy" id="stalledCopy" style="font-size:0.82rem;margin-top:8px">正在查找久未更新或长期停滞的任务。</div>
+                        <span class="metric-label" data-i18n="dashboard.stalledLabel">需要补记录</span>
+                        <span class="metric-value" id="stalledTaskText" data-i18n="dashboard.syncing">同步中</span>
+                        <div class="insight-copy" id="stalledCopy" style="font-size:0.82rem;margin-top:8px" data-i18n="dashboard.recordAnalyzing">正在查找久未更新或长期停滞的任务。</div>
                         <div class="insight-list" id="stalledList" style="margin-top:10px"></div>
                     </div>
                 </div>
             </div>
             <div class="hero-side">
                 <div>
-                    <div class="hero-eyebrow"><i class="material-icons" style="font-size:16px;color:var(--primary)">view_in_ar</i>下一步</div>
+                    <div class="hero-eyebrow"><i class="material-icons" style="font-size:16px;color:var(--primary)">view_in_ar</i><span data-i18n="dashboard.nextStep">下一步</span></div>
                     <div class="stat-number" id="taskCountHero">0</div>
-                    <div class="stat-caption" id="heroSideCaption">正在整理最值得先处理的任务。</div>
+                    <div class="stat-caption" id="heroSideCaption" data-i18n="dashboard.heroCaptionDefault">正在整理最值得先处理的任务。</div>
                 </div>
-                <a href="/pages/myday.html" class="btn btn-outline waves-effect">打开我的一天</a>
+                <a href="/pages/myday.html" class="btn btn-outline waves-effect" data-i18n="dashboard.openMyDay">打开我的一天</a>
             </div>
         </section>
 
         <section>
             <div class="page-toolbar">
                 <div>
-                    <h2 class="section-title">任务列表</h2>
-                    <p class="section-subtitle">保留最重要的信息，只显示真正需要看的内容。</p>
+                    <h2 class="section-title" data-i18n="dashboard.taskList">任务列表</h2>
+                    <p class="section-subtitle" data-i18n="dashboard.taskListSubtitle">保留最重要的信息，只显示真正需要看的内容。</p>
                 </div>
                 <div class="page-toolbar-actions">
                     <a href="/pages/onboarding.html" class="btn btn-outline waves-effect guide-open-btn" id="openGuideBtn">
-                        <i class="material-icons" style="font-size:16px">menu_book</i>新手指引
+                        <i class="material-icons" style="font-size:16px">menu_book</i><span data-i18n="dashboard.guide">新手指引</span>
                     </a>
                     <div class="segmented">
-                        <div class="sort-tab active" data-sort="created_at"><i class="material-icons">schedule</i>最新</div>
-                        <div class="sort-tab" data-sort="category"><i class="material-icons">folder</i>类别</div>
-                        <div class="sort-tab" data-sort="ddl"><i class="material-icons">event</i>DDL</div>
-                        <div class="sort-tab" data-sort="progress"><i class="material-icons">trending_up</i>进度</div>
+                        <div class="sort-tab active" data-sort="created_at"><i class="material-icons">schedule</i><span data-i18n="dashboard.sortNewest">最新</span></div>
+                        <div class="sort-tab" data-sort="category"><i class="material-icons">folder</i><span data-i18n="dashboard.sortCategory">类别</span></div>
+                        <div class="sort-tab" data-sort="ddl"><i class="material-icons">event</i><span data-i18n="dashboard.sortDdl">DDL</span></div>
+                        <div class="sort-tab" data-sort="progress"><i class="material-icons">trending_up</i><span data-i18n="dashboard.sortProgress">进度</span></div>
                     </div>
                 </div>
             </div>
             <div class="task-grid" id="taskList">
                 <div class="loading-state empty-state">
                     <i class="material-icons" style="color:var(--text-muted)">hourglass_empty</i>
-                    <p><strong>正在加载任务</strong></p>
-                    <p>请稍候。</p>
+                    <p><strong data-i18n="common.loadingTasks">正在加载任务</strong></p>
+                    <p data-i18n="common.loadingPleaseWait">请稍候。</p>
                 </div>
             </div>
         </section>
@@ -281,39 +281,39 @@
 
 <div id="createModal" class="modal">
     <div class="modal-content">
-        <h5 class="modal-title">新建任务</h5>
+        <h5 class="modal-title" data-i18n="dashboard.createTask">新建任务</h5>
         <div class="input-field">
             <input type="text" id="newTitle" maxlength="200">
-            <label for="newTitle">任务标题</label>
+            <label for="newTitle" data-i18n="dashboard.taskTitle">任务标题</label>
         </div>
         <div class="input-field">
             <textarea id="newDesc" class="materialize-textarea"></textarea>
-            <label for="newDesc">任务描述</label>
+            <label for="newDesc" data-i18n="dashboard.taskDescription">任务描述</label>
         </div>
         <div class="row" style="margin-bottom:0">
             <div class="col s12 m6">
                 <div class="input-field">
                     <input type="text" id="newCategory" list="categoryList" autocomplete="off">
-                    <label for="newCategory">类别</label>
+                    <label for="newCategory" data-i18n="dashboard.category">类别</label>
                     <datalist id="categoryList"></datalist>
                 </div>
             </div>
             <div class="col s12 m6">
                 <div class="input-field">
-                    <input type="text" id="newDdl" placeholder="点击选择日期时间">
-                    <label for="newDdl" class="active">DDL</label>
+                    <input type="text" id="newDdl" placeholder="点击选择日期时间" data-i18n-placeholder="dashboard.pickDatetime">
+                    <label for="newDdl" class="active" data-i18n="dashboard.ddl">DDL</label>
                 </div>
             </div>
         </div>
         <div class="input-field">
-            <input type="text" id="newTags" placeholder="用逗号分隔，如 工作,重要">
-            <label for="newTags" class="active">标签</label>
+            <input type="text" id="newTags" placeholder="用逗号分隔，如 工作,重要" data-i18n-placeholder="dashboard.tagsPlaceholder">
+            <label for="newTags" class="active" data-i18n="dashboard.tags">标签</label>
         </div>
         <div class="form-error" id="createError"></div>
     </div>
     <div class="modal-footer">
-        <a href="#!" class="modal-close btn btn-outline waves-effect">取消</a>
-        <button class="btn btn-primary waves-effect" id="createSubmitBtn">创建</button>
+        <a href="#!" class="modal-close btn btn-outline waves-effect" data-i18n="dashboard.cancel">取消</a>
+        <button class="btn btn-primary waves-effect" id="createSubmitBtn" data-i18n="dashboard.create">创建</button>
     </div>
 </div>
 
@@ -326,10 +326,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/assets/js/app.js"></script>
 <script>
+TaskM.setDocumentTitle(TaskM.t('dashboard.title'));
+TaskM.translatePage();
+
 let currentSort = 'created_at';
 let allTasks = [];
 let currentUsername = '';
 const GUIDE_STORAGE_PREFIX = 'taskm_dashboard_guide_seen_';
+
+function formatTaskCount(count) {
+    return TaskM.t('common.itemCount', { count });
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     M.AutoInit();
@@ -341,7 +348,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const auth = await fetch('/api/auth/check.php');
+    const auth = await fetch('/api/auth/check.php', {
+        headers: {
+            'Accept-Language': TaskM.getCurrentLanguage(),
+            'X-TaskM-Lang': TaskM.getCurrentLanguage(),
+        },
+    });
     if (!auth.ok) {
         window.location.href = '/pages/login.html';
         return;
@@ -354,7 +366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     document.getElementById('navUsername').textContent = user.username;
-    document.getElementById('greetName').textContent = user.username;
+    document.getElementById('greetName').textContent = TaskM.t('dashboard.heroGreeting', { name: user.username });
 
     await loadTasks();
     await loadCategories();
@@ -398,8 +410,8 @@ function openCreateModal() {
             flatpickr('#newDdl', {
                 enableTime: true,
                 dateFormat: 'Y-m-d H:i',
-                locale: 'zh',
-                placeholder: '点击选择日期时间',
+                locale: TaskM.getFlatpickrLocale(),
+                placeholder: TaskM.t('dashboard.pickDatetime'),
                 time_24hr: true
             });
         }
@@ -419,8 +431,8 @@ async function loadTasks(sort = 'created_at') {
         document.getElementById('taskList').innerHTML = `
             <div class="error-state empty-state">
                 <i class="material-icons" style="color:var(--danger)">error_outline</i>
-                <p><strong>加载失败</strong></p>
-                <p>请刷新后重试。</p>
+                <p><strong>${TaskM.t('common.loadFailed')}</strong></p>
+                <p>${TaskM.t('common.refreshAndRetry')}</p>
             </div>`;
     }
 }
@@ -431,8 +443,8 @@ function renderTasks(tasks, sort) {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="material-icons" style="color:var(--text-muted)">inbox</i>
-                <p><strong>还没有任务</strong></p>
-                <p>先建一个，再开始推进。</p>
+                <p><strong>${TaskM.t('dashboard.noTasks')}</strong></p>
+                <p>${TaskM.t('dashboard.createFirstTask')}</p>
             </div>`;
         return;
     }
@@ -443,7 +455,7 @@ function renderTasks(tasks, sort) {
     if (sort === 'category') {
         const groups = {};
         activeTasks.forEach((task) => {
-            const key = task.category || '未分类';
+            const key = task.category || TaskM.t('common.uncategorized');
             if (!groups[key]) groups[key] = [];
             groups[key].push(task);
         });
@@ -479,21 +491,11 @@ function renderTasks(tasks, sort) {
     });
 }
 
-function commitTypeIcon(type) {
-    const map = { 'no_progress': 'remove', 'completed': 'check', 'follow_up': 'update' };
-    return map[type] || 'remove';
-}
-
-function commitTypeLabel(type) {
-    const map = { 'no_progress': '无进展', 'completed': '已完成', 'follow_up': '跟进中' };
-    return map[type] || '记录';
-}
-
 function renderTaskCard(task) {
     const tags = Array.isArray(task.tags) ? task.tags : [];
     const progress = parseInt(task.progress, 10) || 0;
     const completedBadge = task.is_completed == 1
-        ? '<span class="chip completed"><i class="material-icons" style="font-size:14px">check</i>已完成</span>'
+        ? `<span class="chip completed"><i class="material-icons" style="font-size:14px">check</i>${TaskM.t('common.taskStatusCompleted')}</span>`
         : '';
     const categoryHtml = task.category
         ? `<span><i class="material-icons" style="font-size:15px">folder</i>${escHtml(task.category)}</span>`
@@ -513,7 +515,7 @@ function renderTaskCard(task) {
                     <span class="node-date">${task.last_commit_at ? formatDatetime(task.last_commit_at) : ''}</span>
                 </div>
                 ${task.last_commit_content ? `<div class="node-content">${escHtml(task.last_commit_content)}</div>` : ''}
-                <div class="node-progress">进度：${task.last_commit_progress ?? progress}%</div>
+                <div class="node-progress">${TaskM.t('common.progressValue', { progress: task.last_commit_progress ?? progress })}</div>
             </div>
         </div>`
         : '';
@@ -528,7 +530,7 @@ function renderTaskCard(task) {
             ${tagsHtml ? `<div class="task-chips">${tagsHtml}</div>` : ''}
             ${commitHtml}
             <div class="progress-wrap">
-                <div class="progress-label"><span>整体进度</span><span>${progress}%</span></div>
+                <div class="progress-label"><span>${TaskM.t('common.overallProgress')}</span><span>${progress}%</span></div>
                 <div class="progress ${progress === 100 ? 'progress-100' : ''}">
                     <div class="determinate" style="width:${progress}%"></div>
                 </div>
@@ -558,7 +560,7 @@ function renderCompletedSection(tasks) {
                         <span class="node-date">${task.last_commit_at ? formatDatetime(task.last_commit_at) : ''}</span>
                     </div>
                     ${task.last_commit_content ? `<div class="node-content">${escHtml(task.last_commit_content)}</div>` : ''}
-                    <div class="node-progress">进度：${task.last_commit_progress ?? progress}%</div>
+                    <div class="node-progress">${TaskM.t('common.progressValue', { progress: task.last_commit_progress ?? progress })}</div>
                 </div>
             </div>`
             : '';
@@ -567,19 +569,19 @@ function renderCompletedSection(tasks) {
             <article class="task-card completed-task" data-id="${task.id}">
                 <div class="task-head">
                     <h3 class="task-title">${escHtml(task.title)}</h3>
-                    <span class="chip completed"><i class="material-icons" style="font-size:14px">check</i>已完成</span>
+                    <span class="chip completed"><i class="material-icons" style="font-size:14px">check</i>${TaskM.t('common.taskStatusCompleted')}</span>
                 </div>
                 <div class="task-body">
                     <div class="task-meta">${categoryHtml}${ddlHtml}</div>
                     ${tagsHtml ? `<div class="task-chips">${tagsHtml}</div>` : ''}
                     ${commitHtml}
                     <div class="progress-wrap">
-                        <div class="progress-label"><span>整体进度</span><span>${progress}%</span></div>
+                        <div class="progress-label"><span>${TaskM.t('common.overallProgress')}</span><span>${progress}%</span></div>
                         <div class="progress progress-100">
                             <div class="determinate" style="width:${progress}%"></div>
                         </div>
                     </div>
-                    <button class="btn btn-outline waves-effect revert-btn" onclick="revertTaskStatus(event, '${task.id}')"><i class="material-icons" style="font-size:14px;margin-right:4px">undo</i>返回未完成</button>
+                    <button class="btn btn-outline waves-effect revert-btn" onclick="revertTaskStatus(event, '${task.id}')"><i class="material-icons" style="font-size:14px;margin-right:4px">undo</i>${TaskM.t('dashboard.revertTask')}</button>
                 </div>
             </article>`;
     }).join('');
@@ -589,8 +591,8 @@ function renderCompletedSection(tasks) {
             <div class="completed-header" onclick="toggleCompletedSection(event)">
                 <div style="display:flex;align-items:center;gap:8px">
                     <i class="material-icons" style="color:var(--success)">check_circle</i>
-                    <span style="font-weight:700;color:var(--text-muted)">已完成任务</span>
-                    <span class="chip tag" style="font-size:0.75rem">${tasks.length} 个</span>
+                    <span style="font-weight:700;color:var(--text-muted)">${TaskM.t('dashboard.completedTasks')}</span>
+                    <span class="chip tag" style="font-size:0.75rem">${formatTaskCount(tasks.length)}</span>
                 </div>
                 <i class="material-icons completed-toggle-icon">expand_more</i>
             </div>
@@ -654,56 +656,56 @@ function updateDashboardInsights(tasks, total, completed) {
     document.getElementById('taskCountHero').textContent = heroTask ? heroTaskLabel(heroTask) : String(total);
     document.getElementById('heroSideCaption').textContent = heroTask
         ? buildHeroCaption(heroTask, now)
-        : '还没有明确优先级，先创建一个任务开始推进。';
-    document.getElementById('taskStatusText').textContent = overdueAndSoonCount ? `${overdueAndSoonCount} 个` : '0 个';
-    document.getElementById('stalledTaskText').textContent = stalledTasks.length ? `${stalledTasks.length} 个` : '0 个';
+        : TaskM.t('common.noRecentPriority');
+    document.getElementById('taskStatusText').textContent = formatTaskCount(overdueAndSoonCount);
+    document.getElementById('stalledTaskText').textContent = formatTaskCount(stalledTasks.length);
 
     document.getElementById('overdueCopy').textContent = overdueTasks.length
-        ? '先把已经超时的任务收口，避免列表继续失真。'
+        ? TaskM.t('dashboard.focusOverdue')
         : soonTasks.length
-            ? `今天还有 ${soonTasks.length} 个任务会到点，建议尽快处理。`
-            : '当前没有逾期任务，节奏还算稳。';
+            ? TaskM.t('dashboard.focusToday', { count: soonTasks.length })
+            : TaskM.t('dashboard.focusStable');
     renderInsightList('overdueList', overdueTasks.slice(0, 3), (task) => {
         const overdueDays = Math.max(1, Math.floor((now - new Date(task.ddl)) / 86400000));
-        return { label: overdueDays > 0 ? `逾期 ${overdueDays} 天` : '已逾期', tone: 'danger' };
-    }, '没有逾期任务');
+        return { label: overdueDays > 0 ? TaskM.t('common.overdueDays', { count: overdueDays }) : TaskM.t('common.alreadyOverdue'), tone: 'danger' };
+    }, TaskM.t('dashboard.emptyInsightOverdue'));
 
     document.getElementById('stalledCopy').textContent = stalledTasks.length
-        ? '这些任务缺少最近记录，先补状态，再决定要不要继续推进。'
+        ? TaskM.t('dashboard.stalledHasItems')
         : focusTasks.length
-            ? '如果没有需要补记录的任务，可以从这些可推进任务开始。'
-            : '最近都有更新记录，不需要额外补日志。';
+            ? TaskM.t('dashboard.stalledFocusTasks')
+            : TaskM.t('dashboard.stalledNone');
     renderInsightList('stalledList', (stalledTasks.length ? stalledTasks : focusTasks).slice(0, 3), (task) => {
         if (stalledTasks.length) {
             const idleDays = taskIdleDays(task, now);
-            return { label: idleDays > 0 ? `${idleDays} 天未更新` : '待补记录', tone: idleDays >= 7 ? 'danger' : 'default' };
+            return { label: idleDays > 0 ? TaskM.t('common.idleDays', { count: idleDays }) : TaskM.t('common.pendingRecord'), tone: idleDays >= 7 ? 'danger' : 'default' };
         }
         if (task.ddl) {
             return { label: deadlineLabel(task.ddl, now), tone: isToday(task.ddl, now) ? 'warning' : 'default' };
         }
         const progress = parseInt(task.progress, 10) || 0;
-        return { label: `进度 ${progress}%`, tone: progress === 0 ? 'warning' : 'default' };
-    }, '暂无需要补记录的任务');
+        return { label: TaskM.t('dashboard.sublineProgress', { value: progress }), tone: progress === 0 ? 'warning' : 'default' };
+    }, TaskM.t('dashboard.emptyInsightRecord'));
 }
 
 function buildSummary(total, completed, overdueCount, todayCount, stalledCount) {
-    if (total === 0) return '还没有任务，点右下角开始创建。';
+    if (total === 0) return TaskM.t('dashboard.summaryZero');
     const active = total - completed;
-    const parts = [`共 ${total} 个任务`, `${active} 个在推进`, `${completed} 个已完成`];
-    if (overdueCount) parts.push(`${overdueCount} 个已逾期`);
-    else if (todayCount) parts.push(`${todayCount} 个今天到期`);
-    if (stalledCount) parts.push(`${stalledCount} 个缺少最近记录`);
-    return parts.join('，') + '。';
+    const parts = [TaskM.t('dashboard.summaryTemplate', { total, active, completed })];
+    if (overdueCount) parts.push(TaskM.t('dashboard.summaryOverdue', { count: overdueCount }));
+    else if (todayCount) parts.push(TaskM.t('dashboard.summaryDueToday', { count: todayCount }));
+    if (stalledCount) parts.push(TaskM.t('dashboard.summaryNeedRecords', { count: stalledCount }));
+    return parts.join(' ');
 }
 
 function buildHeroCaption(task, now) {
     if (task.ddl && new Date(task.ddl) < now) {
-        return `优先处理「${task.title}」，已经逾期，先决定继续推进还是调整截止时间。`;
+        return TaskM.t('dashboard.heroOverdue', { title: task.title });
     }
     if (task.ddl) {
-        return `下一项关键节点是「${task.title}」，截止时间 ${formatDatetime(task.ddl)}。`;
+        return TaskM.t('dashboard.heroWithDeadline', { title: task.title, deadline: formatDatetime(task.ddl) });
     }
-    return `「${task.title}」最近缺少进展记录，建议先补一条当前状态。`;
+    return TaskM.t('dashboard.heroMissingRecord', { title: task.title });
 }
 
 function heroTaskLabel(task) {
@@ -721,7 +723,9 @@ function renderInsightList(containerId, tasks, getState, emptyText) {
 
     container.innerHTML = tasks.map((task) => {
         const state = getState(task);
-        const subline = task.ddl ? `DDL ${formatDatetime(task.ddl)}` : `进度 ${parseInt(task.progress, 10) || 0}%`;
+        const subline = task.ddl
+            ? TaskM.t('dashboard.sublineDdl', { value: formatDatetime(task.ddl) })
+            : TaskM.t('dashboard.sublineProgress', { value: parseInt(task.progress, 10) || 0 });
         return `
             <div class="task-last-commit" data-id="${task.id}" style="cursor:pointer;margin-top:0;padding:10px 12px">
                 <div>
@@ -740,10 +744,10 @@ function renderInsightList(containerId, tasks, getState, emptyText) {
 }
 
 function deadlineLabel(ddl, now) {
-    if (isToday(ddl, now)) return '今天到期';
+    if (isToday(ddl, now)) return TaskM.t('common.dueToday');
     const diff = new Date(ddl) - now;
     const days = Math.ceil(diff / 86400000);
-    return days <= 1 ? '明天到期' : `${days} 天后到期`;
+    return days <= 1 ? TaskM.t('common.dueTomorrow') : TaskM.t('common.dueInDays', { count: days });
 }
 
 function isToday(dateStr, now = new Date()) {
@@ -788,13 +792,13 @@ async function createTask() {
     const tags = tagsRaw ? tagsRaw.split(',').map((item) => item.trim()).filter(Boolean) : [];
 
     if (!title) {
-        errEl.textContent = '请填写任务标题';
+        errEl.textContent = TaskM.t('dashboard.titleRequired');
         errEl.style.display = 'block';
         return;
     }
 
     btn.disabled = true;
-    btn.textContent = '创建中...';
+    btn.textContent = TaskM.t('auth.createSubmitting');
 
     try {
         const data = await apiPost('/api/tasks/create.php', {
@@ -811,20 +815,20 @@ async function createTask() {
                 document.getElementById(id).value = '';
             });
             M.updateTextFields();
-            showToast('任务已创建');
+            showToast(TaskM.t('dashboard.taskCreated'));
             await loadTasks(currentSort);
             await loadCategories();
         } else {
-            errEl.textContent = data.error || '创建失败';
+            errEl.textContent = data.error || TaskM.t('dashboard.createFailed');
             errEl.style.display = 'block';
         }
     } catch (e) {
-        errEl.textContent = '网络错误，请重试';
+        errEl.textContent = TaskM.t('common.networkRetry');
         errEl.style.display = 'block';
     }
 
     btn.disabled = false;
-    btn.textContent = '创建';
+    btn.textContent = TaskM.t('dashboard.create');
 }
 
 async function logout() {
@@ -842,13 +846,13 @@ async function revertTaskStatus(event, taskId) {
         });
         
         if (data.success) {
-            showToast('任务已返回未完成状态');
+            showToast(TaskM.t('dashboard.taskReverted'));
             await loadTasks(currentSort);
         } else {
-            showToast(data.error || '更新失败');
+            showToast(data.error || TaskM.t('commits.submitFailed'));
         }
     } catch (e) {
-        showToast('网络错误，请重试');
+        showToast(TaskM.t('common.networkRetry'));
     }
 }
 
