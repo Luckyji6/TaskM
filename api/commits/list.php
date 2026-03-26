@@ -8,14 +8,14 @@ $user = requireAuth();
 
 $taskId = $_GET['task_id'] ?? '';
 if (!$taskId) {
-    jsonResponse(['error' => '缺少任务 ID'], 400);
+    jsonResponse(['error_key' => 'common.missing_task_id'], 400);
 }
 
 $pdo  = getInitializedDB();
 $stmt = $pdo->prepare('SELECT id FROM tasks WHERE id = ? AND user_id = ?');
 $stmt->execute([$taskId, $user['id']]);
 if (!$stmt->fetch()) {
-    jsonResponse(['error' => '任务不存在'], 404);
+    jsonResponse(['error_key' => 'common.task_not_found'], 404);
 }
 
 $stmt = $pdo->prepare(

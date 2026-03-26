@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新手指引 — TaskM</title>
+    <title>新手指引 - TaskM</title>
     <link rel="icon" type="image/png" href="/assets/pic/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -571,8 +571,8 @@
             <div class="onboarding-footer">
                 <div class="onboarding-dots" id="pageDots"></div>
                 <div class="onboarding-actions">
-                    <button class="btn btn-outline waves-effect btn-wide" id="prevBtn">上一页</button>
-                    <button class="btn btn-primary waves-effect btn-wide" id="nextBtn">下一页</button>
+                    <button class="btn btn-outline waves-effect btn-wide" id="prevBtn" data-i18n="onboarding.prev">上一页</button>
+                    <button class="btn btn-primary waves-effect btn-wide" id="nextBtn" data-i18n="onboarding.next">下一页</button>
                 </div>
             </div>
         </section>
@@ -584,119 +584,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/assets/js/app.js"></script>
 <script>
+TaskM.setDocumentTitle(TaskM.t('onboarding.title'));
+TaskM.translatePage();
+
 let currentStep = 0;
 let currentUsername = '';
 const GUIDE_STORAGE_PREFIX = 'taskm_dashboard_guide_seen_';
-const steps = [
-    {
-        title: '欢迎来到 TaskM！\n先点做准备吧',
-        desc: 'TaskM 不是一张越用越乱的长清单。\n它更像一个用来理顺优先级、推进任务、保留记录的工作台。',
-        note: '先看几页简短说明，再开始使用。',
-        visual: {
-            type: 'image',
-            src: '/assets/pic/login.jpg',
-            alt: 'TaskM 登录页面',
-            caption: '先进入账号，再开始后面的任务整理和推进。'
-        }
-    },
-    {
-        title: '我们不是{{催命的}}清单',
-        desc: '很多任务工具的问题不是功能不够，而是信息太满。\nTaskM 会把真正需要关注的任务留在前面，把已经完成的内容折叠起来。',
-        note: '重点一直只有一个：少一点干扰，多一点推进。',
-        visual: {
-            type: 'text',
-            kicker: '设计理念',
-            title: '列表应该服务判断',
-            items: [
-                { title: '少翻找', desc: '进行中的任务留在上面，已完成任务统一收到底部。' },
-                { title: '少干扰', desc: '真正需要看的信息直接放在眼前，不让列表越滚越长。' },
-                { title: '少犹豫', desc: '看一眼就知道哪些任务该先处理。' }
-            ]
-        }
-    },
-    {
-        title: '先看{{主页}}，',
-        desc: '主页是总览区。\n这里会看到任务列表、分类、DDL、进度和最近记录。\n\n决定先做什么之后，再进入按天处理页逐个推进。',
-        note: '主页负责看清全局和顺序。',
-        visual: {
-            type: 'image',
-            src: '/assets/pic/dashboard.jpg',
-            alt: 'TaskM 主页',
-            caption: '主页先负责看清：现在有哪些任务、谁更急、谁该先做。',
-            fallbackTitle: '主页会展示什么',
-            fallbackText: '图片加载完成前，先用文字看一眼核心信息。',
-            fallbackItems: [
-                '任务列表、分类、DDL 和最近记录。',
-                '优先级和当前最值得先处理的事情。'
-            ]
-        }
-    },
-    {
-        title: '「{{我的一天}}」',
-        desc: '「我的一天」是执行页。\n页面会一张一张带出待处理任务，每次只需要关注当前这一项。\n\n这里可以直接记录今天没做、今天跟进，或者完成。',
-        note: '按天处理页负责把动作真正落下来。',
-        visual: {
-            type: 'image',
-            src: '/assets/pic/myday.jpg',
-            alt: 'TaskM 我的一天页面',
-            caption: '一次只处理一个任务，提交后自然进入下一项。',
-            fallbackTitle: '这个页面会做什么',
-            fallbackText: '图片加载完成前，先看这个页面的核心节奏。',
-            fallbackItems: [
-                '每次只专注当前这一个任务。',
-                '直接记录没做、跟进或完成。'
-            ]
-        }
-    },
-    {
-        title: '{{真正常用的}}功能，其实就这几件事',
-        desc: '最常用的动作其实不多：创建任务、提交跟进、标记完成。\n当进度到 100% 时，任务会自动进入已完成折叠区。',
-        note: '如果后面还要继续，也可以重新返回未完成状态。',
-        visual: {
-            type: 'text',
-            kicker: '常用功能',
-            title: '只需要记住这三件事',
-            items: [
-                { title: '新建任务', desc: '把标题、背景、类别和 DDL 放清楚。' },
-                { title: '提交跟进', desc: '把今天的推进和进度记录下来。' },
-                { title: '完成归档', desc: '任务完成后自动折叠到底部，列表更干净。' }
-            ]
-        }
-    },
-    {
-        title: '类别和标签真的没有区别。\n{{随便用}}',
-        desc: '创建任务时填的类别和标签，本质上都是帮你分组和筛选。\n不用纠结该放哪边，按自己的习惯来就行。',
-        note: '',
-        visual: {
-            type: 'text',
-            kicker: '小提示',
-            title: '不必区分太细',
-            items: [
-                { title: '类别', desc: '比如 工作、学习、生活，用来粗分任务。' },
-                { title: '标签', desc: '比如 重要、紧急，用来打标记。混用也没关系。' }
-            ]
-        }
-    },
-    {
-        title: '轰！擦擦！\n你已学会如何使用 TaskM！开始吧！',
-        desc: '现在已经知道 TaskM 的用法了：\n先在主页看清全局，再进入按天处理页逐个推进，让每一次行动都留下记录。',
-        note: '点下面的按钮回到主页，开始建立你的第一批任务。',
-        visual: {
-            type: 'text',
-            kicker: '快速上手',
-            title: '回到主页后先做这三步',
-            items: [
-                { title: '先建任务', desc: '把标题、背景、类别和 DDL 先补清楚。' },
-                { title: '再看顺序', desc: '先从主页确认今天最该推进的那一项。' },
-                { title: '开始记录', desc: '进入「我的一天」，把没做、跟进或完成记下来。' }
-            ]
-        }
-    }
-];
+const steps = TaskM.t('onboarding.steps');
 
 document.addEventListener('DOMContentLoaded', async () => {
     M.AutoInit();
-    const auth = await fetch('/api/auth/check.php');
+    const auth = await fetch('/api/auth/check.php', {
+        headers: {
+            'Accept-Language': TaskM.getCurrentLanguage(),
+            'X-TaskM-Lang': TaskM.getCurrentLanguage(),
+        },
+    });
     if (!auth.ok) {
         window.location.href = '/pages/login.html';
         return;
@@ -721,7 +624,7 @@ function renderStep() {
     const total = steps.length;
     const isLast = currentStep === total - 1;
 
-    document.getElementById('progressText').textContent = `第 ${currentStep + 1} 页 / ${total} 页`;
+    document.getElementById('progressText').textContent = TaskM.t('onboarding.progress', { current: currentStep + 1, total });
     document.getElementById('progressFill').style.width = `${((currentStep + 1) / total) * 100}%`;
     document.getElementById('pageTitle').innerHTML = renderRichText(step.title, true);
     document.getElementById('pageDesc').innerHTML = renderRichText(step.desc, true);
@@ -741,7 +644,7 @@ function renderStep() {
     }
 
     document.getElementById('prevBtn').disabled = currentStep === 0;
-    document.getElementById('nextBtn').textContent = isLast ? '开始吧' : '下一页';
+    document.getElementById('nextBtn').textContent = isLast ? TaskM.t('onboarding.start') : TaskM.t('onboarding.next');
     renderDots(total);
 
     if (stageEl) {

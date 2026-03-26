@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 $user = requireAuth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    jsonResponse(['error' => '仅支持 POST 请求'], 405);
+    jsonResponse(['error_key' => 'common.post_only'], 405);
 }
 
 $body    = json_decode(file_get_contents('php://input'), true);
@@ -17,12 +17,12 @@ $content = trim($body['content'] ?? '');
 $progress = isset($body['progress']) ? (int)$body['progress'] : null;
 
 if (!$taskId || !$type) {
-    jsonResponse(['error' => '参数不完整'], 400);
+    jsonResponse(['error_key' => 'common.missing_params'], 400);
 }
 
 $allowedTypes = ['no_progress', 'completed', 'follow_up'];
 if (!in_array($type, $allowedTypes)) {
-    jsonResponse(['error' => '无效的 commit 类型'], 400);
+    jsonResponse(['error_key' => 'common.invalid_commit_type'], 400);
 }
 
 $pdo  = getInitializedDB();
@@ -31,11 +31,11 @@ $stmt->execute([$taskId, $user['id']]);
 $task = $stmt->fetch();
 
 if (!$task) {
-    jsonResponse(['error' => '任务不存在'], 404);
+    jsonResponse(['error_key' => 'common.task_not_found'], 404);
 }
 
 if ($type === 'no_progress') {
-    $content  = $content ?: '今日无进展';
+    $content  = $content ?: defaultNoProgressContent();
     $progress = $task['progress'];
 }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>任务详情 — TaskM</title>
+    <title>任务详情 - TaskM</title>
     <link rel="icon" type="image/png" href="/assets/pic/logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -24,8 +24,8 @@
     <div class="nav-shell">
         <a href="/pages/dashboard.html" class="brand-logo"><span class="brand-mark">Task</span>M</a>
         <div class="nav-links hide-on-med-and-down">
-            <a href="/pages/dashboard.html" class="nav-link"><i class="material-icons">apps</i>全部任务</a>
-            <a href="/pages/myday.html" class="nav-link"><i class="material-icons">wb_sunny</i>我的一天</a>
+            <a href="/pages/dashboard.html" class="nav-link"><i class="material-icons">apps</i><span data-i18n="common.allTasks">全部任务</span></a>
+            <a href="/pages/myday.html" class="nav-link"><i class="material-icons">wb_sunny</i><span data-i18n="common.myDay">我的一天</span></a>
             <a href="#" class="nav-link nav-user" id="logoutBtn"><i class="material-icons">logout</i><span id="navUsername">...</span></a>
         </div>
         <a href="#" class="sidenav-trigger" data-target="mobile-nav"><i class="material-icons" style="color:var(--text)">menu</i></a>
@@ -33,17 +33,17 @@
 </nav>
 
 <ul class="sidenav" id="mobile-nav">
-    <li><a href="/pages/dashboard.html"><i class="material-icons left">apps</i>全部任务</a></li>
-    <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i>我的一天</a></li>
-    <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i>退出</a></li>
+    <li><a href="/pages/dashboard.html"><i class="material-icons left">apps</i><span data-i18n="common.allTasks">全部任务</span></a></li>
+    <li><a href="/pages/myday.html"><i class="material-icons left">wb_sunny</i><span data-i18n="common.myDay">我的一天</span></a></li>
+    <li><a href="#" id="logoutBtnMobile"><i class="material-icons left">logout</i><span data-i18n="common.logout">退出</span></a></li>
 </ul>
 
 <main class="page">
     <div class="shell detail-stack" id="detailContainer">
         <div class="loading-state empty-state">
             <i class="material-icons" style="color:var(--text-muted)">hourglass_empty</i>
-            <p><strong>正在加载详情</strong></p>
-            <p>请稍候。</p>
+            <p><strong data-i18n="common.loadingDetail">正在加载详情</strong></p>
+            <p data-i18n="common.loadingPleaseWait">请稍候。</p>
         </div>
     </div>
 </main>
@@ -52,11 +52,11 @@
 
 <div id="deleteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
     <div style="background:var(--surface);border-radius:10px;padding:24px;max-width:400px;margin:20px;box-shadow:0 4px 20px rgba(0,0,0,0.15)">
-        <h3 style="margin:0 0 12px 0;font-size:18px;font-weight:600;color:var(--text)">确认删除</h3>
-        <p style="margin:0 0 20px 0;color:var(--text-muted);font-size:14px">删除后无法恢复，确定要删除这个任务吗？</p>
+        <h3 style="margin:0 0 12px 0;font-size:18px;font-weight:600;color:var(--text)" data-i18n="detail.deleteConfirmTitle">确认删除</h3>
+        <p style="margin:0 0 20px 0;color:var(--text-muted);font-size:14px" data-i18n="detail.deleteConfirmDesc">删除后无法恢复，确定要删除这个任务吗？</p>
         <div style="display:flex;gap:12px;justify-content:flex-end">
-            <button class="btn btn-outline waves-effect" id="cancelDeleteBtn">取消</button>
-            <button class="btn btn-danger waves-effect" id="confirmDeleteBtn">确认删除</button>
+            <button class="btn btn-outline waves-effect" id="cancelDeleteBtn" data-i18n="detail.deleteCancel">取消</button>
+            <button class="btn btn-danger waves-effect" id="confirmDeleteBtn" data-i18n="detail.deleteConfirm">确认删除</button>
         </div>
     </div>
 </div>
@@ -64,6 +64,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script src="/assets/js/app.js"></script>
 <script>
+TaskM.setDocumentTitle(TaskM.t('detail.title'));
+TaskM.translatePage();
+
 const TASK_ID = new URLSearchParams(window.location.search).get('id');
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -74,7 +77,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const auth = await fetch('/api/auth/check.php');
+    const auth = await fetch('/api/auth/check.php', {
+        headers: {
+            'Accept-Language': TaskM.getCurrentLanguage(),
+            'X-TaskM-Lang': TaskM.getCurrentLanguage(),
+        },
+    });
     if (!auth.ok) {
         window.location.href = '/pages/login.html';
         return;
@@ -95,8 +103,8 @@ async function loadDetail() {
             document.getElementById('detailContainer').innerHTML = `
                 <div class="error-state empty-state">
                     <i class="material-icons" style="color:var(--danger)">error_outline</i>
-                    <p><strong>任务不存在</strong></p>
-                    <p>请返回主页查看其他任务。</p>
+                    <p><strong>${TaskM.t('detail.missingTitle')}</strong></p>
+                    <p>${TaskM.t('detail.missingDesc')}</p>
                 </div>`;
             return;
         }
@@ -105,8 +113,8 @@ async function loadDetail() {
         document.getElementById('detailContainer').innerHTML = `
             <div class="error-state empty-state">
                 <i class="material-icons" style="color:var(--danger)">error_outline</i>
-                <p><strong>加载失败</strong></p>
-                <p>请刷新后重试。</p>
+                <p><strong>${TaskM.t('common.loadFailed')}</strong></p>
+                <p>${TaskM.t('common.refreshAndRetry')}</p>
             </div>`;
     }
 }
@@ -115,14 +123,14 @@ function renderDetail(task, commits) {
     const tags = Array.isArray(task.tags) ? task.tags : [];
     const progress = parseInt(task.progress, 10) || 0;
     const completedBadge = task.is_completed == 1
-        ? '<span class="chip completed"><i class="material-icons" style="font-size:14px">check</i>已完成</span>'
+        ? `<span class="chip completed"><i class="material-icons" style="font-size:14px">check</i>${TaskM.t('common.taskStatusCompleted')}</span>`
         : '';
     const tagHtml = tags.map((tag) => `<span class="chip tag">${escHtml(tag)}</span>`).join('');
     const categoryHtml = task.category ? `<span class="chip">${escHtml(task.category)}</span>` : '';
     const ddlHtml = task.ddl ? `<span class="chip tag" style="${ddlClass(task.ddl)}">DDL ${formatDate(task.ddl)}</span>` : '';
     const timelineHtml = commits.length
         ? commits.map(renderCommit).join('')
-        : '<div class="empty-state" style="padding:24px 0 12px"><p><strong>暂无提交记录</strong></p><p>今天的进度会显示在这里。</p></div>';
+        : `<div class="empty-state" style="padding:24px 0 12px"><p><strong>${TaskM.t('common.noCommitYet')}</strong></p><p>${TaskM.t('common.todayProgressWillAppearHere')}</p></div>`;
     
     const hasCommitToday = commits.some(commit => {
         const commitDate = new Date(commit.created_at).toDateString();
@@ -130,17 +138,17 @@ function renderDetail(task, commits) {
     });
 
     document.getElementById('detailContainer').innerHTML = `
-        <a href="/pages/dashboard.html" class="back-link"><i class="material-icons">arrow_back</i>返回主页</a>
+        <a href="/pages/dashboard.html" class="back-link"><i class="material-icons">arrow_back</i>${TaskM.t('detail.backToDashboard')}</a>
         <section class="detail-card">
             <div class="detail-title-row">
                 <h1 class="detail-title">${escHtml(task.title)}</h1>
                 ${completedBadge}
-                <button class="btn btn-danger btn-sm waves-effect" id="deleteTaskBtn" style="margin-left:auto"><i class="material-icons left">delete</i>删除</button>
+                <button class="btn btn-danger btn-sm waves-effect" id="deleteTaskBtn" style="margin-left:auto"><i class="material-icons left">delete</i>${TaskM.t('detail.deleteTask')}</button>
             </div>
             <div class="task-chips">${categoryHtml}${tagHtml}${ddlHtml}</div>
             ${task.description ? `<p class="detail-desc">${escHtml(task.description)}</p>` : ''}
             <div class="progress-wrap">
-                <div class="progress-label"><span>整体进度</span><span>${progress}%</span></div>
+                <div class="progress-label"><span>${TaskM.t('common.overallProgress')}</span><span>${progress}%</span></div>
                 <div class="progress ${progress === 100 ? 'progress-100' : ''}">
                     <div class="determinate" style="width:${progress}%"></div>
                 </div>
@@ -149,8 +157,8 @@ function renderDetail(task, commits) {
         <section class="timeline-card">
             <div class="page-toolbar" style="margin-bottom:14px">
                 <div>
-                    <h2 class="section-title timeline-title">历史记录</h2>
-                    <p class="section-subtitle">共 ${commits.length} 条记录。</p>
+                    <h2 class="section-title timeline-title">${TaskM.t('detail.history')}</h2>
+                    <p class="section-subtitle">${TaskM.t('common.recordCount', { count: commits.length })}</p>
                 </div>
             </div>
             <ul class="timeline">${timelineHtml}</ul>
@@ -159,39 +167,39 @@ function renderDetail(task, commits) {
         <section class="detail-actions-panel">
             <div class="page-toolbar" style="margin-bottom:12px">
                 <div>
-                    <h2 class="section-title">今日记录</h2>
-                    <p class="section-subtitle">完成或跟进后，历史会自动更新。</p>
+                    <h2 class="section-title">${TaskM.t('detail.todayRecord')}</h2>
+                    <p class="section-subtitle">${TaskM.t('detail.todayRecordDesc')}</p>
                 </div>
             </div>
             <div style="text-align:center;padding:32px 0" id="todayActionInit">
                 <i class="material-icons" style="font-size:48px;color:var(--primary);margin-bottom:12px">edit_note</i>
-                <p style="color:var(--text-muted);margin-bottom:16px">${hasCommitToday ? '今天已有记录，继续添加更多吧' : '今天还没有记录，快来添加第一条吧'}</p>
+                <p style="color:var(--text-muted);margin-bottom:16px">${hasCommitToday ? TaskM.t('detail.hasRecordToday') : TaskM.t('detail.noRecordToday')}</p>
                 <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-                    <button class="btn btn-outline waves-effect" id="showCompletedBtn"><i class="material-icons left">check_circle</i>完成</button>
-                    <button class="btn btn-primary waves-effect" id="showFollowUpBtn"><i class="material-icons left">trending_up</i>今天跟进</button>
+                    <button class="btn btn-outline waves-effect" id="showCompletedBtn"><i class="material-icons left">check_circle</i>${TaskM.t('myday.completed')}</button>
+                    <button class="btn btn-primary waves-effect" id="showFollowUpBtn"><i class="material-icons left">trending_up</i>${TaskM.t('myday.followUp')}</button>
                 </div>
             </div>
             <div id="todayPanelWrap" style="display:none">
                 <div class="panel-tabs">
-                    <button class="panel-tab" data-panel="completed">完成</button>
-                    <button class="panel-tab active" data-panel="follow_up">今天跟进</button>
+                    <button class="panel-tab" data-panel="completed">${TaskM.t('myday.completed')}</button>
+                    <button class="panel-tab active" data-panel="follow_up">${TaskM.t('myday.followUp')}</button>
                 </div>
                 <div class="panel-content" id="panelCompleted">
-                    <textarea class="myday-textarea" id="completedContent" placeholder="记录你完成了什么"></textarea>
+                    <textarea class="myday-textarea" id="completedContent" placeholder="${escAttr(TaskM.t('detail.completedPlaceholder'))}"></textarea>
                     <div class="panel-actions">
-                        <button class="btn btn-primary waves-effect" id="submitCompleted">提交完成</button>
+                        <button class="btn btn-primary waves-effect" id="submitCompleted">${TaskM.t('detail.submitCompleted')}</button>
                     </div>
                 </div>
                 <div class="panel-content active" id="panelFollowUp">
-                    <textarea class="myday-textarea" id="followUpContent" placeholder="记录今天的进展、行动或思考"></textarea>
+                    <textarea class="myday-textarea" id="followUpContent" placeholder="${escAttr(TaskM.t('detail.followUpPlaceholder'))}"></textarea>
                     <div class="progress-input-row">
-                        <label for="followUpRange">整体进度</label>
+                        <label for="followUpRange">${TaskM.t('common.overallProgress')}</label>
                         <input type="range" id="followUpRange" min="0" max="100" value="${progress}" step="1">
                         <input type="number" id="followUpNum" min="0" max="100" value="${progress}">
                         <span style="color:var(--text-muted)">%</span>
                     </div>
                     <div class="panel-actions">
-                        <button class="btn btn-primary waves-effect" id="submitFollowUp">提交跟进</button>
+                        <button class="btn btn-primary waves-effect" id="submitFollowUp">${TaskM.t('detail.submitFollowUp')}</button>
                     </div>
                 </div>
             </div>
@@ -271,7 +279,7 @@ function renderCommit(commit) {
                     <span class="tl-date">${formatDatetime(commit.created_at)}</span>
                 </div>
                 ${commit.content ? `<div class="tl-content">${escHtml(commit.content)}</div>` : ''}
-                <div class="tl-progress">进度：${commit.progress}%</div>
+                <div class="tl-progress">${TaskM.t('common.progressValue', { progress: commit.progress })}</div>
             </div>
         </li>`;
 }
@@ -291,14 +299,14 @@ async function submitCommit(type, content, progress) {
         });
 
         if (data.success) {
-            showToast(type === 'completed' ? '已标记完成' : '跟进已提交');
+            showToast(type === 'completed' ? TaskM.t('commits.completedToast') : TaskM.t('commits.followUpToast'));
             await loadDetail();
         } else {
-            showToast(data.error || '提交失败');
+            showToast(data.error || TaskM.t('commits.submitFailed'));
             if (btn) btn.disabled = false;
         }
     } catch (e) {
-        showToast('网络错误，请重试');
+        showToast(TaskM.t('common.networkRetry'));
         if (btn) btn.disabled = false;
     }
 }
@@ -316,16 +324,16 @@ async function deleteTask() {
         const data = await apiPost('/api/tasks/delete.php', { id: TASK_ID });
 
         if (data.success) {
-            showToast('任务已删除');
+            showToast(data.message || TaskM.t('detail.deleteSuccess'));
             setTimeout(() => {
                 window.location.href = '/pages/dashboard.html';
             }, 500);
         } else {
-            showToast(data.error || '删除失败');
+            showToast(data.error || TaskM.t('detail.deleteFailed'));
             if (btn) btn.disabled = false;
         }
     } catch (e) {
-        showToast('网络错误，请重试');
+        showToast(TaskM.t('common.networkRetry'));
         if (btn) btn.disabled = false;
     }
 }
@@ -337,6 +345,10 @@ function escHtml(str) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+function escAttr(str) {
+    return escHtml(str).replace(/'/g, '&#39;');
 }
 </script>
 </body>

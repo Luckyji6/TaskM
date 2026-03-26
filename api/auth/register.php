@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    jsonResponse(['error' => '仅支持 POST 请求'], 405);
+    jsonResponse(['error_key' => 'common.post_only'], 405);
 }
 
 $body = json_decode(file_get_contents('php://input'), true);
@@ -18,23 +18,28 @@ $hashClient = trim($body['hash_client'] ?? '');
 $captchaVerifyParam = $body['captchaVerifyParam'] ?? '';
 
 if (!$username || !$email || !$hashClient || !$captchaVerifyParam) {
-    jsonResponse(['error' => '参数不完整'], 400);
+    jsonResponse(['error_key' => 'common.missing_params'], 400);
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    jsonResponse(['error' => '邮箱格式不正确'], 400);
+    jsonResponse(['error_key' => 'auth.invalid_email'], 400);
 }
 
 if (strlen($hashClient) !== 64 || !ctype_xdigit($hashClient)) {
-    jsonResponse(['error' => '密码格式不正确'], 400);
+    jsonResponse(['error_key' => 'common.invalid_password_hash'], 400);
 }
 
 $captchaResult = verifyAliyunCaptcha($captchaVerifyParam);
 if (!$captchaResult['success']) {
-    jsonResponse([
-        'error' => $captchaResult['error'],
+    $response = [
         'captchaVerifyResult' => $captchaResult['captchaResult'],
-    ], $captchaResult['captchaResult'] === false ? 400 : 500);
+    ];
+    if (!empty($captchaResult['error_key'])) {
+        $response['error_key'] = $captchaResult['error_key'];
+    } else {
+        $response['error'] = $captchaResult['error'] ?? t('captcha.verify_failed');
+    }
+    jsonResponse($response, $captchaResult['captchaResult'] === false ? 400 : 500);
 }
 
 $pdo = getInitializedDB();
@@ -42,13 +47,13 @@ $pdo = getInitializedDB();
 $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
 $stmt->execute([$email]);
 if ($stmt->fetch()) {
-    jsonResponse(['error' => '该邮箱已被注册'], 409);
+    jsonResponse(['error_key' => 'auth.email_taken'], 409);
 }
 
 $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
 $stmt->execute([$username]);
 if ($stmt->fetch()) {
-    jsonResponse(['error' => '该用户名已被使用'], 409);
+    jsonResponse(['error_key' => 'auth.username_taken'], 409);
 }
 
 $passwordHash = password_hash($hashClient, PASSWORD_BCRYPT, ['cost' => 12]);
